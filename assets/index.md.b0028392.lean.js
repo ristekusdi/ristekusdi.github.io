@@ -1,0 +1,1 @@
+import{_ as a,c as e,o as n,a as r}from"./app.5110f07a.js";const m=JSON.parse('{"title":"Dokumentasi SSO Udayana","description":"","frontmatter":{},"headers":[],"relativePath":"index.md"}'),s={name:"index.md"},t=r("",5),o=[t];function i(p,l,k,u,d,h){return n(),e("div",null,o)}var _=a(s,[["render",i]]);export{m as __pageData,_ as default};
