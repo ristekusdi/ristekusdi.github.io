@@ -7,5 +7,7 @@ export default {
             { text: 'SSO PHP', link: '/sso-php' },
             { text: 'SSO Laravel', link: '/sso-laravel' },
         ]
-    }
+    },
+    // deployment
+    base: '/sso-docs/'
 }  
