@@ -52,6 +52,18 @@ function login() {
     exit();
 }
 
+function logout()
+{
+    $sso = new SSOService;
+    $token = $sso->retrieveToken();
+    $sso->forgetToken();
+
+    $url = $sso->getLogoutUrl($token['id_token']);
+    
+    header('Location: ', $url);
+    exit();
+}
+
 function callback() {
     if (!empty($_GET['error'])) {
         $error = $_GET['error_description'];
@@ -222,9 +234,10 @@ class Xauth extends CI_Controller {
     public function logout()
     {
         $sso = new SSOService;
+        $token = $sso->retrieveToken();
         $sso->forgetToken();
 
-        $url = $sso->getLogoutUrl();
+        $url = $sso->getLogoutUrl($token['id_token']);
         return redirect($url);
     }
 
