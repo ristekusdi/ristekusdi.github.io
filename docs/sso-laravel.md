@@ -28,19 +28,13 @@ Isian konfigurasi tersebut dipasang pada file `.env`.
 
 1. Instal `ristekusdi/sso-laravel` dengan perintah
 
-
 ```bash 
-# Laravel 9
-composer require ristekusdi/sso-laravel:^3
-```
-
-```bash 
-# Laravel 6 hingga 8
+# Laravel 8 hingga 9
 composer require ristekusdi/sso-laravel:^2
 ```
 
 ```bash
-# Laravel 5.6 hingga 5.8
+# Laravel 5.6 hingga 7.x
 composer require ristekusdi/sso-laravel:^1
 ```
 
