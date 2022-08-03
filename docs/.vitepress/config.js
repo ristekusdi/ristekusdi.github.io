@@ -1,13 +1,13 @@
 export default {
-    title: 'Dokumentasi SSO Udayana',
-    description: 'Dokumentasi penggunaan Single Sign On Universitas Udayana.',
+    title: 'RistekUSDI',
+    description: 'Dokumentasi pustaka karya Ristek USDI.',
     themeConfig: {
-        siteTitle: 'Dokumentasi SSO Udayana',
+        siteTitle: 'Dokumentasi pustaka karya Ristek USDI',
         nav: [
             { text: 'SSO PHP', link: '/sso-php' },
             { text: 'SSO Laravel', link: '/sso-laravel' },
         ]
     },
     // deployment
-    base: '/sso-docs/'
+    base: '/'
 }  

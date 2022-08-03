@@ -1,7 +1,7 @@
 {
-  "name": "sso-docs",
+  "name": "ristekusdi.github.io",
   "version": "1.0.0",
-  "description": "Dokumentasi Penggunaan SSO Universitas Udayana",
+  "description": "Dokumentasi pustaka karya Ristek USDI",
   "main": "index.js",
   "directories": {
     "doc": "docs"
