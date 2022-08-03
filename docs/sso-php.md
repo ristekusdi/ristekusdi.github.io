@@ -28,7 +28,15 @@ Isian konfigurasi tersebut dipasang pada file `.env`.
 
 ## Instalasi
 
-Instalasi terbagi menjadi dua bagian yakni [PHP](#php) dan [CodeIgniter 3.x](#codeigniter-3-x).
+Gunakan perintah di bawah ini untuk menginstal package ristekusdi/sso-php
+
+```bash
+composer require ristekusdi/sso-php
+```
+
+## Pengaturan
+
+Pengaturan dibagi menjadi dua bagian yakni [PHP](#php) dan [CodeIgniter 3.x](#codeigniter-3-x).
 
 ### PHP
 
@@ -203,7 +211,7 @@ class Webauth {
 $autoload['libraries'] = array('...','webauth');
 ```
 
-5. Buat sebuah file bernama `Xauth.php` di direktori `application/controllers`. Masukkan sintaks di bawah ini ke file tersebut.
+5. Buat sebuah file bernama `Webauth.php` di direktori `application/controllers`. Masukkan sintaks di bawah ini ke file tersebut.
 
 ```php
 <?php
@@ -214,7 +222,7 @@ use RistekUSDI\SSO\Services\SSOService;
 use RistekUSDI\SSO\Auth\Guard\WebGuard;
 use RistekUSDI\SSO\Auth\AccessToken;
 
-class Xauth extends CI_Controller {
+class Webauth extends CI_Controller {
 
     public function __construct()
     {
@@ -364,11 +372,11 @@ class Xauth extends CI_Controller {
 5. Masukkan sintaks di bawah ini ke dalam `application/config/routes.php`. Hal ini digunakan sebagai routing autentikasi.
 
 ```php
-$route['sso/login'] = 'xauth/login';
-$route['sso/logout'] = 'xauth/logout';
-$route['sso/callback'] = 'xauth/callback';
-$route['sso/change_role_active'] = 'xauth/change_role_active';
-$route['sso/change_kv_active'] = 'xauth/change_kv_active';
+$route['sso/login'] = 'webauth/login';
+$route['sso/logout'] = 'webauth/logout';
+$route['sso/callback'] = 'webauth/callback';
+$route['sso/change_role_active'] = 'webauth/change_role_active';
+$route['sso/change_kv_active'] = 'webauth/change_kv_active';
 ```
 
 6. Agar halaman tertentu di dalam suatu proyek dilindungi oleh autentikasi, tambahkan perintah `$this->webauth->authenticated()` ke dalam `constructor` di suatu controller. Sehingga jika pengguna mengakses halaman tertentu belum terautentikasi maka di arahkan ke halaman login SSO.
