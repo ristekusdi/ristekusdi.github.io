@@ -2,7 +2,7 @@
 
 > Berdikari dan tangguh!
 
-Selamat datang di situs Ristek USDI. Situs ini memuat pustaka-pustaka karya RistekUSDI antara lain:
+Selamat datang di situs Ristek USDI. Situs ini memuat dokumentasi pustaka-pustaka karya Ristek USDI antara lain:
 
 - [sso-php](/sso-php)
 - [sso-laravel](/sso-laravel)
