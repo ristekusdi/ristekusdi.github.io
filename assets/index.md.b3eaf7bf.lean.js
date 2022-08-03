@@ -1,0 +1,1 @@
+import{_ as a,c as e,o as t,a as s}from"./app.13a780db.js";const h=JSON.parse('{"title":"Ristek USDI","description":"","frontmatter":{},"headers":[],"relativePath":"index.md"}'),n={name:"index.md"},r=s("",5),i=[r];function o(k,l,c,p,d,_){return t(),e("div",null,i)}var m=a(n,[["render",o]]);export{h as __pageData,m as default};
