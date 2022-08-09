@@ -211,7 +211,7 @@ class Webauth {
 $autoload['libraries'] = array('...','webauth');
 ```
 
-5. Buat sebuah file bernama `Webauth.php` di direktori `application/controllers`. Masukkan sintaks di bawah ini ke file tersebut.
+5. Buat sebuah file bernama `Netauth.php` di direktori `application/controllers`. Masukkan sintaks di bawah ini ke file tersebut.
 
 ```php
 <?php
@@ -222,7 +222,7 @@ use RistekUSDI\SSO\Services\SSOService;
 use RistekUSDI\SSO\Auth\Guard\WebGuard;
 use RistekUSDI\SSO\Auth\AccessToken;
 
-class Webauth extends CI_Controller {
+class Netauth extends CI_Controller {
 
     public function __construct()
     {
@@ -372,11 +372,11 @@ class Webauth extends CI_Controller {
 5. Masukkan sintaks di bawah ini ke dalam `application/config/routes.php`. Hal ini digunakan sebagai routing autentikasi.
 
 ```php
-$route['sso/login'] = 'webauth/login';
-$route['sso/logout'] = 'webauth/logout';
-$route['sso/callback'] = 'webauth/callback';
-$route['sso/change_role_active'] = 'webauth/change_role_active';
-$route['sso/change_kv_active'] = 'webauth/change_kv_active';
+$route['sso/login'] = 'netauth/login';
+$route['sso/logout'] = 'netauth/logout';
+$route['sso/callback'] = 'netauth/callback';
+$route['sso/change_role_active'] = 'netauth/change_role_active';
+$route['sso/change_kv_active'] = 'netauth/change_kv_active';
 ```
 
 6. Agar halaman tertentu di dalam suatu proyek dilindungi oleh autentikasi, tambahkan perintah `$this->webauth->authenticated()` ke dalam `constructor` di suatu controller. Sehingga jika pengguna mengakses halaman tertentu belum terautentikasi maka di arahkan ke halaman login SSO.
