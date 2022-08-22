@@ -66,15 +66,20 @@ php artisan vendor:publish --tag=sso-laravel-web-advance
 +   'model' => App\Models\SSO\Web\User::class,
 ```
 
-4. Pada file `sso.php` di folder `config` tambahkan nilai `role_permissions` dan `role_active` pada sebuah array dengan key `user_attributes`.
+4. Pada file `config/sso.php` terdapat array dengan key `user_attributes`. Ini berfungsi bila Anda ingin menambah atribut tambahan pengguna yang berasal dari Keycloak, database atau session aplikasi Anda. Secara bawaan, isian dari array dengan key `user_attributes` antara lain `unud_identifier_id`, `unud_sso_id` dan `unud_user_type_id`.
 
-```php{3,4}
+```php
 'user_attributes' => [
-    // ...
-    'role_permissions',
-    'role_active'
+    // default attributes
+    'unud_identifier_id',
+    'unud_sso_id',
+    'unud_user_type_id',
 ],
 ```
+
+::: tip INFO
+Pelajari lebih lanjut pada sesi [Konfigurasi Web Guard - Tingkat Lanjut](#konfigurasi-web-guard-tingkat-lanjut)!
+:::
 
 5. Perbaharui nilai `guard` pada file `config/sso.php`.
 
