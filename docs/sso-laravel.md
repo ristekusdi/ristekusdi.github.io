@@ -50,7 +50,7 @@ Panduan ini ditujukan bagi pengembang yang tidak menggunakan versi sso-laravel 2
 composer update ristekusdi/sso-laravel
 ```
 
-> Pastikan versi ristekusdi/sso-laravel adalah versi 2.4
+> Pastikan versi ristekusdi/sso-laravel adalah versi 2.4 ke atas.
 
 2. Jalankan perintah mengimpor aset-aset yang diperlukan.
 
