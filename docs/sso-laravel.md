@@ -38,26 +38,110 @@ composer require ristekusdi/sso-laravel:^2
 composer require ristekusdi/sso-laravel:^1
 ```
 
-2. Impor aset-aset yang diperlukan dengan perintah berikut
+## Panduan Peningkatan
+
+::: warning PERHATIAN!
+Panduan ini ditujukan bagi pengembang yang tidak menggunakan versi sso-laravel 2.4 ke atas.
+:::
+
+1. Jalankan perintah berikut untuk memperbaharui versi sso-laravel.
+
+```bash
+composer update ristekusdi/sso-laravel
+```
+
+> Pastikan versi ristekusdi/sso-laravel adalah versi 2.4
+
+2. Jalankan perintah mengimpor aset-aset yang diperlukan.
+
+```bash
+php artisan vendor:publish --tag=sso-laravel-web
+php artisan vendor:publish --tag=sso-laravel-web-advance
+```
+
+3. Perbaharui `model` dari provider `imissu-web` pada file `config/auth.php`.
+
+```diff{1,2}
+-   'model' => App\Models\SSO\User::class,
++   'model' => App\Models\SSO\Web\User::class,
+```
+
+4. Pada file `sso.php` di folder `config` tambahkan nilai `role_permissions` dan `role_active` pada sebuah array dengan key `user_attributes`.
+
+```php{3,4}
+'user_attributes' => [
+    // ...
+    'role_permissions',
+    'role_active'
+],
+```
+
+5. Perbaharui nilai `guard` pada file `config/sso.php`.
+
+```diff{1,2}
+-   'guard' => RistekUSDI\SSO\Auth\Guard\WebGuard::class,
++   'guard' => App\Services\Auth\Guard\WebGuard::class,
+```
+
+6. Daftarkan route `sso-web.php` dan hapus route `sso.php` dari file `routes/web.php`. 
+
+```diff{1,2}
+-  require __DIR__.'/sso.php';
++  require __DIR__.'/sso-web.php';
+```
+
+7. Pada file `config/app.php` daftarkan provider `WebSession` di dalam array `providers` dan class alias `WebSession` di dalam array `aliases`.
+
+```php{5,12}
+'providers' => [
+    //...
+
+    // WebSession
+    App\Providers\WebSessionProvider::class,
+],
+
+'aliases' => [
+    //...
+
+    // WebSession
+    'WebSession' => App\Facades\WebSession::class,
+]
+```
+
+8. Impor facade `WebSession` pada file `app/Http/Controllers/SSO/Web/AuthController.php` dan tambahkan perintah `WebSession::forgetRoleActive()` pada baris paling atas di dalam method `logout()`. Hal ini bertujuan untuk menghapus session `role_active` yang disimpan oleh Laravel.
+
+```php{2,11}
+// Import facade WebSession
+use App\Facades\WebSession;
+
+class AuthController extends Controller
+{
+    //...
+
+    public function logout()
+    {
+        // Forget role active
+        WebSession::forgetRoleActive();
+        
+        //...
+    }
+}
+```
+
+9. Daftarkan route `web-session.php` ke dalam file `routes/web.php`. Tujuannya untuk mengganti session `role_active` pengguna.
+
+```php
+require __DIR__.'/web-session.php';
+```
+
+## Konfigurasi Web Guard
+
+1. Impor aset-aset yang diperlukan dengan perintah berikut
 ```bash
 php artisan vendor:publish --tag=sso-laravel-web
 ```
 
-Perintah di atas akan mengimpor aset-aset yang diperlukan antara lain:
-
-- File controller `AuthController.php` ke dalam folder `app/Http/Controllers/SSO/Web`.
-
-- File model `User.php` ke dalam folder `app/Models/SSO/Web`.
-
-- File konfigurasi `sso.php` ke dalam folder `config`.
-
-- File route `sso-web.php` ke dalam folder `routes`.
-
-- Folder berisi halaman-halaman HTTP Error (401 dan 403) yang berkaitan dengan `error SSO Callback Exception`. Lokasi halaman-halaman HTTP Error setelah diimpor berada di folder `resources/views/sso-web/errors`.
-
-> **Catatan:** Anda memiliki kebebasan untuk melakukan kustomisasi terhadap halaman error tersebut. Untuk menghubungkan halaman-halaman HTTP Error yang berkaitan dengan `SSO Callback Exception` ke dalam proyek Laravel, silakan menuju halaman [Modifikasi Halaman Error](#modifikasi-halaman-error).
-
-3. Menambah guard dan provider `imissu-web` yang ada pada file `config/auth.php`.
+2. Menambah guard dan provider `imissu-web` yang ada pada file `config/auth.php`.
 
 ```php
 // Tambahkan ini di dalam array dengan key 'guards'
@@ -65,9 +149,7 @@ Perintah di atas akan mengimpor aset-aset yang diperlukan antara lain:
     'driver' => 'imissu-web',
     'provider' => 'imissu-web',
 ],
-```
 
-```php
 // Tambahkan ini di dalam array dengan key 'providers'
 'imissu-web' => [
     'driver' => 'imissu-web',
@@ -91,17 +173,85 @@ Route::get('/home', 'HomeController@index')->middleware('imissu-web');
 
 6. Aplikasi siap dijalankan dengan perintah `php artisan serve --port=<port yang dipasang di IMISSU Dashboard>` atau custom domain `http://yourapp.test` dengan bantuan [Laragon](https://laragon.org/docs/pretty-urls.html).
 
-::: info
-Silakan menuju halaman [daftar perintah auth](#daftar-perintah-auth) yang digunakan pada pustaka sso-laravel.
-:::
+Konfigurasi telah selesai. Tetapi, ada kalanya kita memiliki kasus seperti menyisipkan atribut-atribut tambahan seperti `role_permissions` dan `role_active`. Atribut `role_permissions` diambil dari database dan `role_active` diambil dari session.
 
-::: tip
-Jika Anda ingin kendali lebih terhadap SSO, silakan menuju halaman [Konfigurasi Tingkat Lanjut](#konfigurasi-tingkat-lanjut)
-:::
+Untuk kasus tersebut kita lanjutkan pada tahap Konfigurasi Web Guard - Tingkat Lanjut.
 
-::: danger CATATAN!
-Jika Anda mengalami error hingga langkah 6, silakan menuju halaman [Soal Sering Ditanya](#soal-sering-ditanya).
-:::
+## Konfigurasi Web Guard - Tingkat Lanjut
+
+1. Impor aset-aset yang diperlukan dengan perintah berikut
+```bash
+php artisan vendor:publish --tag=sso-laravel-web-advance
+```
+
+2. Perbaharui nilai `guard` pada file `config/sso.php`.
+
+```diff{1,2}
+-   'guard' => RistekUSDI\SSO\Auth\Guard\WebGuard::class,
++   'guard' => App\Services\Auth\Guard\WebGuard::class,
+```
+
+3. Pada file `sso.php` di folder `config` tambahkan nilai `role_permissions` dan `role_active` pada sebuah array dengan key `user_attributes`.
+
+```php{3,4}
+'user_attributes' => [
+    // ...
+    'role_permissions',
+    'role_active'
+],
+```
+
+4. Pada file `config/app.php` daftarkan provider `WebSession` di dalam array `providers` dan class alias `WebSession` di dalam array `aliases`.
+
+```php{5,12}
+'providers' => [
+    //...
+
+    // WebSession
+    App\Providers\WebSessionProvider::class,
+],
+
+'aliases' => [
+    //...
+
+    // WebSession
+    'WebSession' => App\Facades\WebSession::class,
+]
+```
+
+5. Impor facade `WebSession` pada file `app/Http/Controllers/SSO/Web/AuthController.php` dan tambahkan perintah `WebSession::forgetRoleActive()` pada baris paling atas di dalam method `logout()`. Hal ini bertujuan untuk menghapus session `role_active` yang disimpan oleh Laravel.
+
+```php{2,11}
+// Import facade WebSession
+use App\Facades\WebSession;
+
+class AuthController extends Controller
+{
+    //...
+
+    public function logout()
+    {
+        // Forget role active
+        WebSession::forgetRoleActive();
+        
+        //...
+    }
+}
+```
+
+6. Daftarkan route `web-session.php` ke dalam file `routes/web.php`. Tujuannya untuk mengganti session `role_active` pengguna.
+
+```php
+require __DIR__.'/web-session.php';
+```
+
+7. Daftarkan route `sso-web-demo.php` ke dalam file `routes/web.php`. Tujuannya untuk demo dari konfigurasi tingkat lanjut.
+
+```php
+require __DIR__.'/sso-web-demo.php';
+```
+
+8. Buka halaman `http://localhost:<your-port-number>/sso-web-demo` untuk melihat hasil dari konfigurasi tingkat lanjut.
 
 ## Daftar Perintah Auth
 
@@ -159,74 +309,3 @@ Ada dua cara untuk mendapatkan access token dan refresh token:
 1. Mengimpor facade `IMISSUWeb` dengan perintah `use RistekUSDI\SSO\Facades\IMISSUWeb;`, kemudian jalankan perintah `IMISSUWeb::retrieveToken()`.
 
 2. Menggunakan session. Gunakan perintah `session()->get('_sso_token.access_token')` untuk mendapatkan access token dan `session()->get('_sso_token.refresh_token')`.
-
-## Konfigurasi Tingkat Lanjut - Web Guard
-
-Konfigurasi ini berguna jika Anda ingin menyisipkan atribut tambahan seperti `role_permissions` dan `role_active`. Atribut `role_permissions` diambil dari database dan `role_active` diambil dari session.
-
-1. Pada file `sso.php` di folder `config` tambahkan nilai `role_permissions` dan `role_active` pada sebuah array dengan key `user_attributes`.
-
-```php
-'user_attributes' => [
-    // ...
-    'role_permissions',
-    'role_active'
-],
-```
-
-2. Impor aset-aset yang diperlukan untuk konfigurasi tingkat lanjut dengan perintah
-
-```bash
-php artisan vendor:publish --tag=sso-laravel-web-advance-setup
-```
-
-3. Perbaharui lokasi web guard pada file `sso.php` di folder `config` pada sebuah array bernama `web` dengan key bernama `guard`.
-
-```php
-'guard' => App\Services\Auth\Guard\WebGuard::class,
-```
-
-4. Pada file `config/app.php` daftarkan provider `WebSession` di dalam array `providers`.
-
-```php
-'providers' => [
-    //...
-
-    // WebSession
-    App\Providers\WebSessionProvider::class,
-]
-```
-
-5. Pada file `config/app.php` daftarkan class alias `WebSession` di dalam array `aliases`.
-
-```php
-'aliases' => [
-    //...
-
-    // WebSession
-    'WebSession' => App\Facades\WebSession::class,
-]
-```
-
-6. Daftarkan route `web-session.php` ke dalam file `routes/web.php`. Tujuannya untuk mengganti session `role_active` pengguna.
-
-```php
-//...
-require __DIR__.'/web-session.php';
-```
-
-7. Daftarkan route `sso-web-demo.php` ke dalam file `routes/web.php`. Tujuannya untuk contoh dari konfigurasi tingkat lanjut.
-
-```php
-//...
-require __DIR__.'/sso-web-demo.php';
-```
-
-8. Pastikan Anda menghapus komentar-komentar yang ada di file `App\Http\Controllers\SSO\Web\AuthController`. Komentar-komentar tersebut antara lain:
-
-- `use App\Facades\WebSession;`
-- `WebSession::forgetRoleActive();`
-
-Hal ini bertujuan untuk menghapus session role active saat pengguna logout.
-
-9. Buka halaman `http://localhost:8000/sso-web-demo` untuk melihat hasil dari konfigurasi tingkat lanjut.
