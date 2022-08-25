@@ -78,18 +78,6 @@ given_name = identifier
 family_name = name
 ```
 
-+ $credentials = IMISSUWeb::retrieveToken();
-+ if (empty($credentials)) {
-+    throw new \Exception('Credentials are empty.');
-+ }
-
-+ $user = IMISSUWeb::getUserProfile($credentials);
-+ if (empty($user)) {
-+    IMISSUWeb::forgetToken();
-+    throw new \Exception('User not found.');
-+ }
-```
-
 ### 2.4.1
 
 1. Jalankan perintah berikut untuk memperbaharui versi sso-laravel.
