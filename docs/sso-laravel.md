@@ -40,9 +40,57 @@ composer require ristekusdi/sso-laravel:^1
 
 ## Panduan Peningkatan
 
-::: warning PERHATIAN!
-Panduan ini ditujukan bagi pengembang yang tidak menggunakan versi sso-laravel 2.4 ke atas.
-:::
+### 2.5.1
+
+1. Jalankan perintah berikut untuk memperbaharui versi sso-laravel.
+
+```bash
+composer update ristekusdi/sso-laravel
+```
+
+2. Perbaharui baris kode pada file `app/Http/Controllers/SSO/Web/AuthController.php` di method `callback()`.
+
+```diff
+- if (Auth::guard('imissu-web')->validate($token)) {
+-     $url = config('sso.web.redirect_url', '/');
+-     return redirect()->intended($url);
+- } else {
+-    // For case like user doesn't have token
+-    // or user doesn't have access to certain client app
+-    throw new CallbackException('Unauthorized', 403);
+- }
+
++ try {
++    Auth::guard('imissu-web')->validate($token);
++    $url = config('sso.web.redirect_url', '/');
++    return redirect()->intended($url);
++ } catch (\Exception $e) {
++    throw new CallbackException($e->getMessage(), $e->getCode());
++ }
+```
+
+
+3. Terdapat tambahan atribut baru pada pengguna yakni `preferred_username`, `given_name`, dan `family_name`.
+
+```bash
+preferred_username = username
+given_name = identifier
+family_name = name
+```
+
++ $credentials = IMISSUWeb::retrieveToken();
++ if (empty($credentials)) {
++    throw new \Exception('Credentials are empty.');
++ }
+
++ $user = IMISSUWeb::getUserProfile($credentials);
++ if (empty($user)) {
++    IMISSUWeb::forgetToken();
++    throw new \Exception('User not found.');
++ }
+```
+
+### 2.4.1
 
 1. Jalankan perintah berikut untuk memperbaharui versi sso-laravel.
 
