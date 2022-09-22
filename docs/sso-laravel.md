@@ -40,6 +40,21 @@ composer require ristekusdi/sso-laravel:^1
 
 ## Panduan Peningkatan
 
+### 2.6
+
+`CallbackException` tidak dipakai dan diganti dengan fungsi `abort()` milik Laravel. Sehingga, di method `callback()` perlu diubah.
+
+```diff
+- throw new CallbackException($error);
++ abort(401, $error);
+
+- throw new CallbackException($error);
++ abort(401, 'Invalid state');
+
+- throw new CallbackException($e->getMessage(), $e->getCode());
++ abort($e->getMessage(), $e->getCode());
+```
+
 ### 2.5.1
 
 1. Jalankan perintah berikut untuk memperbaharui versi sso-laravel.
