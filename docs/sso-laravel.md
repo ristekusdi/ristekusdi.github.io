@@ -23,11 +23,13 @@ php artisan vendor:publish --tag=sso-laravel-web
 File-file yang diimpor antara lain:
 
 - app/Http/Controllers/SSO/Web/AuthController.php
-- app/Http/Controllers/SSO/Web/BasicController.php
+- app/Http/Controllers/SSO/Web/DemoController.php
 - app/Models/SSO/Web/User.php
 - config/sso.php
 - resources/views/sso-web/basic.blade.php
+- resources/views/sso-web/demo.blade.php
 - routes/sso-web.php
+- routes/sso-web-demo.php
 
 3. Tambahkan guard dan provider `imissu-web` di `config/auth.php`.
 
@@ -45,31 +47,46 @@ File-file yang diimpor antara lain:
 ],
 ```
 
-4. Daftarkan route `sso-web.php` ke dalam file `routes/web.php`. Ini berfungsi untuk menambahkan route SSO (login, callback, logout).
+4. Tambahkan route `sso-web.php` ke dalam file `routes/web.php`. Ini berfungsi untuk menambahkan route SSO (login, callback, logout).
 
 ```php
 require __DIR__.'/sso-web.php';
 ```
 
-<!-- 5. Ubah nilai `redirect_url` 'redirect_url' => '/', -->
+5. Ubah nilai `redirect_url` menjadi `'/sso-web-basic'` di `config/sso.php`.
 
-5. Tambahkan middleware `imissu-web` pada route yang ingin diproteksi dengan otentikasi SSO di `routes/web.php`. Contohnya pada halaman `/sso-web-basic` yang mana controller dan viewnya sudah diimpor dari langkah 2.
-
-```php
-// Location: routes/web.php
-
-// Laravel 8 - 9
-Route::get('/sso-web-basic', [App\Http\Controllers\SSO\Web\BasicController::class, 'index'])->middleware('imissu-web');
-
-// Laravel 5.6 - 7
-Route::get('/sso-web-basic', 'App\Http\Controllers\SSO\Web\BasicController@index')->middleware('imissu-web');
+```diff
+- 'redirect_url' => '/',
++ 'redirect_url' => '/sso-web-demo',
 ```
 
-6. Buka halaman `/sso-web-basic` dengan URL `http://localhost:<port>/sso-web-basic` atau `http://yourapp.test/sso-web-basic` dengan bantuan [Laragon](https://laragon.org/docs/pretty-urls.html).
+Hal ini bertujuan ketika login dengan SSO maka langsung diarahkan ke halaman `/sso-web-demo`.
+
+6. Tambahkan route `sso-web-demo.php` ke dalam file `routes/web.php` untuk melihat demo SSO web.
+
+```php
+require __DIR__.'/sso-web-demo.php';
+```
+
+7. Buka halaman `/sso-web-demo` dengan URL `http://localhost:<port>/sso-web-demo` atau `http://yourapp.test/sso-web-basic` dengan bantuan [Laragon](https://laragon.org/docs/pretty-urls.html).
+
+8. Klik tautan "Basic" dan tampilannya seperti gambar di bawah.
+
+![Image of SSO web basic](/img/sso-web-demo-basic.png)
+
+::: tip RANGKUMAN
+Pada tutorial Web Guard tingkat dasar ini kita telah belajar cara:
+- Instalasi package ristekusdi/sso-laravel.
+- Mengimpor aset yang diperlukan untuk tingkat dasar.
+- Mendaftarkan guard dan provider imissu-web di config/auth.php.
+- Mendaftarkan route SSO web untuk login, callback, dan logout.
+- Mengubah nilai redirect_url di config/sso.php.
+- Melihat halaman SSO web demo basic sebagai contoh implementasi Web Guard tingkat dasar.
+:::
 
 ## Tutorial Web Guard Tingkat Lanjut
 
-Tutorial ini akan menjelaskan menyisipkan atribut tambahan seperti `role_active` dan `role_active_permission` di objek pengguna IMISSU dan mengubah nilai dari `role_active`.
+Kita akan belajar menyisipkan atribut tambahan seperti `role_active` dan `role_active_permission` di objek pengguna IMISSU dan mengubah nilai dari `role_active` dengan `session`.
 
 ::: danger PERINGATAN
 Anda diwajibkan mengikuti Tutorial Web Guard Tingkat Dasar terlebih dahulu!
@@ -80,82 +97,17 @@ Anda diwajibkan mengikuti Tutorial Web Guard Tingkat Dasar terlebih dahulu!
 php artisan vendor:publish --tag=tutorial-sso-laravel-web-advance
 ```
 
-Perintah tersebut akan mengimpor file-file yang diperlukan untuk konfigurasi tingkat lanjut.
+Perintah tersebut akan mengimpor file resources/views/sso-web/advance.blade.php untuk tahap berikutnya.
 
-2. Daftarkan route `sso-web-demo.php` di `routes/web.php`.
+3. Akses halaman demo dengan `http://localhost:<port>/sso-web-demo` atau `http://yourapp.test/sso-web-demo` di aplikasi. Klik tautan "Advance" dan Anda akan mendapatkan tampilan halaman berikut.
 
-```php
-require __DIR__.'/sso-web-demo.php';
-```
+![Image of SSO web demo advance error](/img/sso-web-demo-advance-error.png)
 
-Route ini berisi controller yang mengarah ke halaman demo yang berisi atribut pengguna SSO, mengubah peran aktif (role_active) pengguna, mengecek daftar permission berdasarkan peran aktif pengguna.
+Pada gambar di atas, kita belum mendapatkan nilai dari peran aktif dan daftar permission yang melekat pada peran aktif (lihat pada tanda `???` di gambar). Tugas kita adalah memperbaiki bug tersebut.
 
-3. Akses halaman demo dengan `http://localhost:<port>/sso-web-demo` atau `http://yourapp.test/sso-web-demo` di aplikasi. Anda akan mendapatkan error berikut.
+4. Kita akan menerapkan konsep Accessor dan Mutators di Laravel untuk menangani kondisi ini. Buka file `app/Models/SSO/Web/User.php` dan ikuti isian seperti kode di bawah.
 
-2. Ubah nilai `guard` pada file `config/sso.php`.
 
-```diff{1,2}
--   'guard' => RistekUSDI\SSO\Auth\Guard\WebGuard::class,
-+   'guard' => App\Services\Auth\Guard\WebGuard::class,
-```
-
-3. Tambahkan nilai `role_active` dan `role_active_permissions` pada array dengan key `user_attributes` di `config/sso.php`.
-
-```php{3,4}
-'user_attributes' => [
-    // ...
-    'role_active'
-    'role_active_permissions',
-],
-```
-
-4. Daftarkan provider `WebSession` di dalam array `providers` dan class alias `WebSession` di dalam array `aliases` di `config/app.php`.
-
-```php{5,12}
-'providers' => [
-    //...
-
-    // WebSession
-    App\Providers\WebSessionProvider::class,
-],
-
-'aliases' => [
-    //...
-
-    // WebSession
-    'WebSession' => App\Facades\WebSession::class,
-]
-```
-
-5. Untuk menyisipkan atribut `role_active` dan `role_active_permissions` aktifkan fungsi `WebSession::bind($user)` di `WebGuard.php`.
-
-```php{6,18}
-<?php
-
-namespace App\Services\Auth\Guard;
-
-use RistekUSDI\SSO\Auth\Guard\WebGuard as Guard;
-use RistekUSDI\SSO\Facades\IMISSUWeb;
-use App\Facades\WebSession;
-
-class WebGuard extends Guard
-{
-    public function authenticate()
-    {
-        //...   
-        /**
-         * NOTE
-         * Here's the way you want to bind user with additional data from database or session.
-         */
-        $user = WebSession::bind($user);
-        
-        $user = $this->provider->retrieveByCredentials($user);
-        $this->setUser($user);
-        
-        return true;
-    }
-}
-```
 
 5. Sisipkan atribut tambahan `role_active` dan `role_active_permissions` ke objek user kita akan `WebSession.php`.
 
