@@ -99,50 +99,55 @@ php artisan vendor:publish --tag=tutorial-sso-laravel-web-advance
 
 Perintah tersebut akan mengimpor file resources/views/sso-web/advance.blade.php untuk tahap berikutnya.
 
-3. Akses halaman demo dengan `http://localhost:<port>/sso-web-demo` atau `http://yourapp.test/sso-web-demo` di aplikasi. Klik tautan "Advance" dan Anda akan mendapatkan tampilan halaman berikut.
+2. Akses halaman demo dengan `http://localhost:<port>/sso-web-demo` atau `http://yourapp.test/sso-web-demo` di aplikasi. Klik tautan "Advance" dan Anda akan mendapatkan tampilan halaman berikut.
 
 ![Image of SSO web demo advance error](/img/sso-web-demo-advance-error.png)
 
 Pada gambar di atas, kita belum mendapatkan nilai dari peran aktif dan daftar permission yang melekat pada peran aktif (lihat pada tanda `???` di gambar). Tugas kita adalah memperbaiki bug tersebut.
 
-4. Kita akan menerapkan konsep Accessor dan Mutators di Laravel untuk menangani kondisi ini. Buka file `app/Models/SSO/Web/User.php` dan ikuti isian seperti kode di bawah.
-
-
-
-5. Sisipkan atribut tambahan `role_active` dan `role_active_permissions` ke objek user kita akan `WebSession.php`.
+3. Kita akan menerapkan konsep Accessor dan Mutators di Laravel untuk menangani kondisi ini. Buka file `app/Models/SSO/Web/User.php` dan ikuti isian seperti kode di bawah.
 
 ```php
-// Location: app/Services/WebSession.php
 <?php
 
-namespace App\Services;
+namespace App\Models\SSO\Web;
 
-class WebSession
+use RistekUSDI\SSO\Models\Web\User as Model;
+
+class User extends Model
 {
-    public function bind($user)
+    protected $appends = ['role_active', 'role_active_permissions'];
+
+    public function setRoleActiveAttribute($value)
     {
-        $role_active = $this->getRoleActive($user['roles']);
-        $role_active_permissions = $this->getRoleActivePermissions($role_active);
-        $data = [
-            'role_active' => $role_active,
-            'role_active_permissions' => $role_active_permissions,
-        ];
-        
-        $user = array_merge($user, $data);
-        
-        return $user;
+        if (session()->has('role_active')) {
+            $this->attributes['role_active'] = session()->get('role_active');
+        } else {
+            session()->put('role_active', $value);
+            session()->save();
+            $this->attributes['role_active'] = $value;
+        }
     }
 
-    public function getRoleActive($roles = array())
+    public function getRoleActiveAttribute()
     {
-        return (session()->has('role_active')) ? session()->get('role_active') : $roles[0];
+        if (session()->has('role_active')) {
+            return $this->attributes['role_active'] = session()->get('role_active');
+        } else {
+            return $this->attributes['role_active'] = $this->roles['0'];
+        }
     }
 
-    public function getRoleActivePermissions($role_active)
+    public function getRoleActivePermissionsAttribute()
     {
+        $role_active = $this->roles['0'];
+        if (session()->has('role_active')) {
+            $role_active = session()->get('role_active');
+        }
+
         $permissions = [
             'Admin' => [
-                'manage-users',
+                'disable-user',
                 'manage-roles',
                 'impersonate'
             ],
@@ -161,154 +166,42 @@ class WebSession
             }
         }
 
-        return $selected_permissions;
+        return $this->attributes['role_active_permissions'] = $selected_permissions;
     }
 }
 ```
 
-5. Tambahkan perintah `WebSession::forget()` pada baris paling atas di dalam method `logout()`. Hal ini bertujuan untuk menghapus session `role_active`.
+4. Refresh halaman "Advance" maka nilai `role_active` dan `role_active_permissions` sudah berubah seperti gambar di bawah.
 
-```php{5,14}
-// Location: app/Http/Controllers/SSO/Web/AuthController.php
-<?php
+![Image of SSO web demo advance fix part 1](/img/sso-web-demo-advance-1.png)
 
-// Import facade WebSession
-use App\Facades\WebSession;
-
-class AuthController extends Controller
-{
-    //...
-
-    public function logout()
-    {
-        // Forget app session
-        WebSession::forget();
-        
-        //...
-    }
-}
-```
-
-6. Tambahkan method `forget()` di `WebSession.php`.
+5. Kita akan mengubah session `role_active`. Tambahkan kode berikut di dalam `app/Model/SSO/Web/User.php`.
 
 ```php
-// Location: app/Services/WebSession.php
-<?php
-
-namespace App\Services;
-
-class WebSession
+// ...
+public function changeRoleActive($role_active)
 {
-    /**
-     * Forget selected session from app
-     * Dear maintainer and developers:
-     * Please don't use session()->flush() 
-     * because it also remove session SSO like access_token and refresh_token!
-     * Use session()->forget() instead!
-     */
-    public function forget()
-    {
-        session()->forget(['role_active']);
-        session()->save();
-    }
+    session()->forget('role_active');
+    session()->save();
+    session()->put('role_active', $role_active);
+    session()->save();
 }
 ```
 
-7. Tambahkan fungsi `changeRoleActive()` di `WebSession.php` untuk mengubah nilai `role_active` setiap berganti peran.
+6. Di halaman "Advance" ubah peran Admin menjadi Developer dan hasilnya seperti gambar di bawah.
 
-```php{8-14}
-// Location: app/Services/WebSession.php
-<?php
+![Image of SSO web demo advance fix part 2](/img/sso-web-demo-advance-2.png)
 
-namespace App\Services;
+Tutorial selesai.
 
-class WebSession
-{
-    public function changeRoleActive($role_active)
-    {
-        session()->forget('role_active');
-        session()->save();
-        session()->put('role_active', $role_active);
-        session()->save();
-    }
-}
-```
+::: tip RANGKUMAN
+Pada tutorial Web Guard tingkat lanjut ini kita telah belajar cara:
+- Mengimpor aset yang diperlukan untuk tingkat lanjut.
+- Menerapkan Accessor dan Mutator untuk atribut tambahan seperti `role_active` dan `role_active_permissions` di User model.
+- Mengubah `role_active` melalui User model.
+:::
 
-8. Tambahkan fungsi `changeRoleActive()` di `WebGuard.php`.
-
-```php{8,12-16}
-// Location: app/Services/Auth/Guard/WebGuard.php
-<?php
-
-namespace App\Services\Auth\Guard;
-
-use RistekUSDI\SSO\Auth\Guard\WebGuard as Guard;
-use RistekUSDI\SSO\Facades\IMISSUWeb;
-use App\Facades\WebSession;
-
-class WebGuard extends Guard
-{
-    public function changeRoleActive($role_active)
-    {
-        WebSession::changeRoleActive($role_active);
-        return true;
-    }
-}
-```
-
-Berikutnya, bila ingin mengubah nilai `role_active` maka jalankan perintah `Auth::guard('imissu-web')->changeRoleActive($role_active)` atau `auth('imissu-web')->changeRoleActive($role_active)`.
-
-9. Tambahkan fungsi `changeRoleActive()` di `WebSessionController.php`.
-
-```php{8,12-25}
-// Location: app/Http/Controllers/SSO/Web/WebSessionController.php
-<?php
-
-namespace App\Http\Controllers\SSO\Web;
-
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Auth;
-
-class WebSessionController extends Controller
-{
-    public function changeRoleActive(Request $request)
-    {
-        if (Auth::guard('imissu-web')->changeRoleActive($request->role_active)) {
-            return response()->json([
-                'message' => 'Berhasil mengubah peran aktif',
-                'code' => 200
-            ], 200);
-        } else {
-            return response()->json([
-                'message' => 'Gagal mengubah peran aktif',
-                'code' => 403
-            ], 403);
-        }
-    }
-}
-```
-
-10. Tambahkan fungsi mengubah nilai `role_active` di `web-session.php`.
-
-```php
-// Location: routes/web-session.php
-<?php
-
-use Illuminate\Support\Facades\Route;
-
-Route::post('/web-session/change-role-active', 'SSO\Web\WebSessionController@changeRoleActive')->middleware('imissu-web');
-```
-
-11. Daftarkan route `web-session.php` di `routes/web.php`.
-
-```php
-require __DIR__.'/web-session.php';
-```
-
-12. Buka halaman `http://localhost:<your-port-number>/sso-web-demo` untuk melihat hasil yang sudah dikerjakan.
-
-## Daftar Perintah Auth
+## Web Guard Auth
 
 Pustaka ini mengimplementasikan `Illuminate\Contracts\Auth\Guard` sehingga hampir semua method di sini mengimplementasikan bawaan Laravel Framework.
 
