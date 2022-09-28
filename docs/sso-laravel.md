@@ -105,7 +105,7 @@ Perintah tersebut akan mengimpor file resources/views/sso-web/advance.blade.php 
 
 Pada gambar di atas, kita belum mendapatkan nilai dari peran aktif dan daftar permission yang melekat pada peran aktif (lihat pada tanda `???` di gambar). Tugas kita adalah memperbaiki bug tersebut.
 
-3. Kita akan menerapkan konsep Accessor dan Mutators di Laravel untuk menangani kondisi ini. Buka file `app/Models/SSO/Web/User.php` dan ikuti isian seperti kode di bawah.
+3. Kita akan menerapkan [konsep Accessor dan Mutators Laravel](https://laravel.com/docs/8.x/eloquent-mutators#accessors-and-mutators) untuk menangani kondisi ini. Buka file `app/Models/SSO/Web/User.php` dan ikuti isian seperti kode di bawah.
 
 ```php
 <?php
@@ -175,7 +175,50 @@ class User extends Model
 
 ![Image of SSO web demo advance fix part 1](/img/sso-web-demo-advance-1.png)
 
-5. Kita akan mengubah session `role_active`. Tambahkan kode berikut di dalam `app/Model/SSO/Web/User.php`.
+5. Kita akan mengubah session `role_active`. Tambahkan kode berikut di dalam group middleware `imissu-web` di file `routes/sso-web-demo.php`.
+
+```php
+Route::middleware(['imissu-web'])->group(function () {
+    //...
+    Route::post('/sso-web-demo/change-role-active', [App\Http\Controllers\SSO\Web\DemoController::class, 'changeRoleActive']);
+});
+```
+
+6. Tambahkan kode berikut di `resources/views/sso-web/advance.blade.php`.
+
+```html
+<input type="hidden" name="url_change_role_active" value="{{ url('/sso-web-demo/change-role-active') }}">
+
+<script>
+    document.getElementById('roles-combo').onchange = function (e) {
+        const value = e.target.value;
+        const url = document.querySelector('input[name="url_change_role_active"]').value;
+        const current_url = document.querySelector('input[name="current_url"]').value;
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        if (value != '0') {
+            fetch(url, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRF-TOKEN': token
+                },
+                method: 'POST',
+                credentials: 'same-origin',
+                body: `role_active=${value}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.code == 200) {
+                    window.location.href = current_url;
+                } else {
+                    alert(data.message);
+                }
+            });
+        }
+    }
+</script>
+```
+
+6. Tambahkan kode berikut di dalam `app/Model/SSO/Web/User.php`.
 
 ```php
 // ...
