@@ -77,7 +77,6 @@ require __DIR__.'/sso-web-demo.php';
 ::: tip RANGKUMAN
 Pada tutorial Web Guard tingkat dasar ini kita telah belajar cara:
 - Instalasi package ristekusdi/sso-laravel.
-- Mengimpor aset yang diperlukan untuk tingkat dasar.
 - Mendaftarkan guard dan provider imissu-web di config/auth.php.
 - Mendaftarkan route SSO web untuk login, callback, dan logout.
 - Mengubah nilai redirect_url di config/sso.php.
@@ -218,9 +217,30 @@ Route::middleware(['imissu-web'])->group(function () {
 </script>
 ```
 
-6. Tambahkan kode berikut di dalam `app/Model/SSO/Web/User.php`.
+7. Tambahkan kode berikut di `app/Http/Controllers/Web/DemoController.php`.
 
-```php
+```php{4}
+// ..
+public function changeRoleActive(Request $request)
+{   
+    auth('imissu-web')->user()->changeRoleActive($request->role_active);
+    if (auth('imissu-web')->user()->role_active === $request->role_active) {
+        return response()->json([
+            'message' => 'Berhasil mengubah peran aktif',
+            'code' => 200
+        ], 200);
+    } else {
+        return response()->json([
+            'message' => 'Gagal mengubah peran aktif',
+            'code' => 403
+        ], 403);
+    }
+}
+```
+
+8. Tambahkan kode berikut di `app/Model/SSO/Web/User.php`.
+
+```php{2}
 // ...
 public function changeRoleActive($role_active)
 {
@@ -231,17 +251,16 @@ public function changeRoleActive($role_active)
 }
 ```
 
-6. Di halaman "Advance" ubah peran Admin menjadi Developer dan hasilnya seperti gambar di bawah.
+9. Di halaman "Advance" ubah peran Admin menjadi Developer dan hasilnya seperti gambar di bawah.
 
 ![Image of SSO web demo advance fix part 2](/img/sso-web-demo-advance-2.png)
 
-Tutorial selesai.
+Tutorial selesai. :tada:
 
 ::: tip RANGKUMAN
 Pada tutorial Web Guard tingkat lanjut ini kita telah belajar cara:
-- Mengimpor aset yang diperlukan untuk tingkat lanjut.
 - Menerapkan Accessor dan Mutator untuk atribut tambahan seperti `role_active` dan `role_active_permissions` di User model.
-- Mengubah `role_active` melalui User model.
+- Mengubah `role_active` dari langkah 5 sampai 8.
 :::
 
 ## Web Guard Auth
