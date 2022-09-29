@@ -255,6 +255,41 @@ public function changeRoleActive($role_active)
 
 ![Image of SSO web demo advance fix part 2](/img/sso-web-demo-advance-2.png)
 
+Kita telah menambahkan atribut tambahan dari session aplikasi. Bagaimana cara menghapusnya saat pengguna keluar aplikasi? Jika Anda sudah mengikuti langkah 5 sampai 8 mungkin Anda sudah menemukan caranya. Jika belum, kita lanjutkan tutorial ini.
+
+11. Sisipkan baris perintah berikut di method `logout()` di baris pertama di `app/Http/Controllers/SSO/Web/AuthController.php`.
+
+```php{3}
+public function logout()
+{
+    auth('imissu-web')->user()->forgetSession();
+    $token = IMISSUWeb::retrieveToken();
+    IMISSUWeb::forgetToken();
+
+    $url = IMISSUWeb::getLogoutUrl($token['id_token']);
+    return redirect($url);
+}
+```
+
+Di baris ke-3 yang disoroti tersebut kita menyisipkan perintah `forgetSession()`.
+
+12. Tambahkan kode berikut di `app/Models/SSO/Web/User.php`
+
+```php{2}
+// ...
+public function forgetSession()
+{
+    session()->forget(['role_active', 'role_active_permissions']);
+    session()->save();
+}
+```
+
+::: warning PERINGATAN
+Jika kita menggunakan perintah `session()->flush()` maka akan menghapus session `access_token` dan `refresh_token` SSO. Sehingga, kita gunakan `session()->forget()` sebagai penggantinya.
+:::
+
+Klik tautan "Log out" dan session aplikasi terhapus saat pengguna keluar dari aplikasi.
+
 Tutorial selesai. :tada:
 
 ::: tip RANGKUMAN
