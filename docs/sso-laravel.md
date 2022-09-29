@@ -28,7 +28,6 @@ Perintah di atas untuk mengimpor file-file antara lain:
 - config/sso.php
 - resources/views/sso-web/basic.blade.php
 - resources/views/sso-web/demo.blade.php
-- routes/sso-web.php
 - routes/sso-web-demo.php
 
 3. Tambahkan guard dan provider `imissu-web` di `config/auth.php`.
@@ -47,13 +46,25 @@ Perintah di atas untuk mengimpor file-file antara lain:
 ],
 ```
 
-4. Tambahkan route `sso-web.php` ke dalam file `routes/web.php`. Ini berfungsi untuk menambahkan route SSO (login, callback, logout).
+4. Impor route `sso-web` dengan perintah berikut.
+
+```bash
+// Laravel 6 - 7
+php artisan vendor:publish --tag=sso-laravel-web-route-v1
+
+// Laravel 8 - 9
+php artisan vendor:publish --tag=sso-laravel-web-route-v2
+```
+
+Perintah ini akan menghasilkan file `sso-web.php` di folder `routes`.
+
+5. Tambahkan route `sso-web.php` ke dalam file `routes/web.php`. Ini berfungsi untuk menambahkan route SSO (login, callback, logout).
 
 ```php
 require __DIR__.'/sso-web.php';
 ```
 
-5. Ubah nilai `redirect_url` menjadi `'/sso-web-basic'` di `config/sso.php`.
+6. Ubah nilai `redirect_url` menjadi `'/sso-web-basic'` di `config/sso.php`.
 
 ```diff
 - 'redirect_url' => '/',
@@ -62,15 +73,15 @@ require __DIR__.'/sso-web.php';
 
 Hal ini bertujuan ketika login dengan SSO maka langsung diarahkan ke halaman `/sso-web-demo`.
 
-6. Tambahkan route `sso-web-demo.php` ke dalam file `routes/web.php` untuk melihat demo SSO web.
+7. Tambahkan route `sso-web-demo.php` ke dalam file `routes/web.php` untuk melihat demo SSO web.
 
 ```php
 require __DIR__.'/sso-web-demo.php';
 ```
 
-7. Buka halaman `/sso-web-demo` dengan URL `http://localhost:<port>/sso-web-demo` atau `http://yourapp.test/sso-web-basic` dengan bantuan [Laragon](https://laragon.org/docs/pretty-urls.html).
+8. Buka halaman `/sso-web-demo` dengan URL `http://localhost:<port>/sso-web-demo` atau `http://yourapp.test/sso-web-basic` dengan bantuan [Laragon](https://laragon.org/docs/pretty-urls.html).
 
-8. Klik tautan "Basic" dan tampilannya seperti gambar di bawah.
+9. Klik tautan "Basic" dan tampilannya seperti gambar di bawah.
 
 ![Image of SSO web basic](/img/sso-web-demo-basic.png)
 
@@ -85,11 +96,11 @@ Pada tutorial Web Guard tingkat dasar ini kita telah belajar cara:
 
 ## Tutorial Web Guard - Tingkat Lanjut
 
-Kita akan belajar menyisipkan atribut tambahan seperti `role_active` dan `role_active_permission` di objek pengguna IMISSU dan mengubah nilai dari `role_active` dengan `session`.
-
 ::: danger PERINGATAN
 Anda diwajibkan mengikuti Tutorial Web Guard Tingkat Dasar terlebih dahulu!
 :::
+
+Kita akan belajar menyisipkan atribut tambahan seperti `role_active` dan `role_active_permission` di objek pengguna IMISSU dan mengubah nilai dari `role_active` dengan `session`.
 
 1. Jalankan perintah di bawah ini.
 ```bash
@@ -111,7 +122,7 @@ Pada gambar di atas, kita belum mendapatkan nilai dari peran aktif dan daftar pe
 
 namespace App\Models\SSO\Web;
 
-use RistekUSDI\SSO\Models\Web\User as Model;
+use RistekUSDI\SSO\Laravel\Models\Web\User as Model;
 
 class User extends Model
 {
@@ -179,6 +190,11 @@ class User extends Model
 ```php
 Route::middleware(['imissu-web'])->group(function () {
     //...
+
+    // Laravel 6 - 7
+    Route::post('/sso-web-demo/change-role-active', 'App\Http\Controllers\SSO\Web\DemoController@changeRoleActive');
+
+    // Laravel 8 - 9
     Route::post('/sso-web-demo/change-role-active', [App\Http\Controllers\SSO\Web\DemoController::class, 'changeRoleActive']);
 });
 ```
@@ -331,8 +347,15 @@ require __DIR__.'/web-session.php';
 
 ```diff
 // routes/sso-web-demo.php
+// Laravel 6 - 7
+- Route::post('/sso-web-demo/change-role-active', 'App\Http\Controllers\SSO\Web\DemoController@changeRoleActive']);
+// Laravel 8 - 9
 - Route::post('/sso-web-demo/change-role-active', [App\Http\Controllers\SSO\Web\DemoController::class, 'changeRoleActive']);
+
 // routes/web-session.php
+// Laravel 6 - 7
++ Route::post('/web-session/change-role-active', 'App\Http\Controllers\SSO\Web\SessionController@changeRoleActive');
+// Laravel 8 - 9
 + Route::post('/web-session/change-role-active', [App\Http\Controllers\SSO\Web\SessionController::class, 'changeRoleActive']);
 ```
 
@@ -402,7 +425,7 @@ require __DIR__.'/web-session.php';
 namespace App\Models\SSO\Web;
 
 use App\Facades\WebSession;
-use RistekUSDI\SSO\Models\Web\User as Model;
+use RistekUSDI\SSO\Laravel\Models\Web\User as Model;
 
 class User extends Model
 {
@@ -530,19 +553,8 @@ Berikut perintah-perintah yang digunakan untuk mengakses data pengguna SSO.
 // sub adalah id user di Keycloak.
 // TIDAK DIREKOMENDASIKAN menggunakan atribut ini utk menyimpan nilai.
 auth('imissu-web')->user()->sub;
-
-// Identitas lengkap dalam bentuk NIP/NIM Nama pengguna
-auth('imissu-web')->user()->full_identity;
-
-// Username pengguna. Anda bisa memilih salah satu penggunaan.
-auth('imissu-web')->user()->username;
 auth('imissu-web')->user()->preferred_username;
-
-// Identifier = NIP/NIM
-auth('imissu-web')->user()->identifier;
-
 auth('imissu-web')->user()->name;
-
 auth('imissu-web')->user()->email;
 
 // Daftar peran pengguna dalam suatu aplikasi.
@@ -557,6 +569,16 @@ auth('imissu-web')->user()->unud_sso_id;
 
 // id tipe pengguna di Unud.
 auth('imissu-web')->user()->unud_user_type_id;
+
+# Virtual attributes
+
+auth('imissu-web')->user()->username;
+
+// Identifier = NIP/NIM
+auth('imissu-web')->user()->identifier;
+
+// Identitas lengkap dalam bentuk NIP/NIM Nama pengguna
+auth('imissu-web')->user()->full_identity;
 
 # Methods
 
@@ -584,12 +606,34 @@ auth('imissu-web')->check();
 auth('imissu-web')->guest();
 ```
 
+## Web Guard Middleware
+
+Berikut daftar web middleware yang disediakan oleh SSO Laravel.
+
+```php
+// Middleware untuk mengecek apakah pengguna sudah terotentikasi.
+// Jika belum terotentikasi maka diarahkan ke halaman login.
+middleware('imissu-web');
+
+// Middleware untuk mengecek apakah pengguna memiliki peran Admin dan atau Developer
+// Jika peran yang ingin dicek lebih dari satu maka gunakan tanda "|"
+Route::middleware('imissu-web.role:Admin|Developer');
+
+// Middleware untuk mengecek apakah pengguna memiliki peran aktif sebagai Admin atau Developer
+// Jika peran aktif yang ingin dicek lebih dari satu maka gunakan tanda "|"
+Route::middleware('imissu-web.role_active:Admin|Developer');
+
+// Middleware untuk mengecek apakah pengguna memiliki permission user.create dan atau user.view
+// Jika permission yang ingin dicek lebih dari satu maka gunakan tanda "|"
+Route::middleware('imissu-web.permission:user.create|user.view');
+```
+
 ## Soal Sering Ditanya
 
 ### Bagaimana cara mendapatkan access token dan refresh token?
 
 Ada dua cara untuk mendapatkan access token dan refresh token:
 
-1. Mengimpor facade `IMISSUWeb` dengan perintah `use RistekUSDI\SSO\Facades\IMISSUWeb;`, kemudian jalankan perintah `IMISSUWeb::retrieveToken()`.
+1. Mengimpor facade `IMISSUWeb` dengan perintah `use RistekUSDI\SSO\Laravel\Facades\IMISSUWeb;`, kemudian jalankan perintah `IMISSUWeb::retrieveToken()`.
 
 2. Menggunakan session. Gunakan perintah `session()->get('_sso_token.access_token')` untuk mendapatkan access token dan `session()->get('_sso_token.refresh_token')`.
