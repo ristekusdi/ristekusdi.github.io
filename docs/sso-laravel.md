@@ -2,7 +2,7 @@
 
 Petunjuk penggunaan pustaka SSO Laravel Universitas Udayana.
 
-## Tutorial Web Guard Tingkat Dasar
+## Tutorial Web Guard - Tingkat Dasar
 
 Tutorial ini akan menjelaskan cara memproteksi halaman-halaman dengan otentikasi SSO IMISSU.
 
@@ -14,13 +14,13 @@ composer require ristekusdi/sso-laravel
 
 Setelah diinstal, silakan ambil nilai environment SSO di website IMISSU2 dev atau IMISSU2 dan taruh di file `.env`.
 
-2. Jalankan perintah di bawah ini untuk mengimpor file-file yang diperlukan.
+2. Jalankan perintah di bawah ini.
 
 ```bash
-php artisan vendor:publish --tag=sso-laravel-web
+php artisan vendor:publish --tag=sso-laravel-web-demo-basic
 ```
 
-File-file yang diimpor antara lain:
+Perintah di atas untuk mengimpor file-file antara lain:
 
 - app/Http/Controllers/SSO/Web/AuthController.php
 - app/Http/Controllers/SSO/Web/DemoController.php
@@ -83,7 +83,7 @@ Pada tutorial Web Guard tingkat dasar ini kita telah belajar cara:
 - Melihat halaman SSO web demo basic sebagai contoh implementasi Web Guard tingkat dasar.
 :::
 
-## Tutorial Web Guard Tingkat Lanjut
+## Tutorial Web Guard - Tingkat Lanjut
 
 Kita akan belajar menyisipkan atribut tambahan seperti `role_active` dan `role_active_permission` di objek pengguna IMISSU dan mengubah nilai dari `role_active` dengan `session`.
 
@@ -93,7 +93,7 @@ Anda diwajibkan mengikuti Tutorial Web Guard Tingkat Dasar terlebih dahulu!
 
 1. Jalankan perintah di bawah ini.
 ```bash
-php artisan vendor:publish --tag=tutorial-sso-laravel-web-advance
+php artisan vendor:publish --tag=sso-laravel-web-demo-advance
 ```
 
 Perintah tersebut akan mengimpor file resources/views/sso-web/advance.blade.php untuk tahap berikutnya.
@@ -298,48 +298,291 @@ Pada tutorial Web Guard tingkat lanjut ini kita telah belajar cara:
 - Mengubah `role_active` dari langkah 5 sampai 8.
 :::
 
-## Web Guard Auth
+## Tutorial Web Guard - Refactoring
 
-Pustaka ini mengimplementasikan `Illuminate\Contracts\Auth\Guard` sehingga hampir semua method di sini mengimplementasikan bawaan Laravel Framework.
+Refactoring adalah proses mengubah struktur kode program tanpa mengubah atau menambah fungsi program yang sudah ada. 
 
-Untuk mengakses data pengguna terotentikasi oleh SSO IMISSU gunakan perintah `auth('imissu-web')->user()` atau `Auth::guard('imissu-web')->user()`. Isi dari data pengguna terotentikasi oleh SSO IMISSU antara lain:
+Manfaat dari proses refactoring antara lain memudahkan program dibaca oleh programmer lain karena baris kode dirampingkan dan memudahkan programmer dan programmer lainnya membaca kode program.
 
-- `sub`.
-- `full_identity` dengan format `NIP Nama Pengguna`.
-- `username`.
-- `identifier` yakni NIP atau NIM.
-- `name`.
-- `email`.
-- `roles`.
-- `unud_identifier_id`.
-- `unud_sso_id`.
-- `unud_user_type_id`.
+Pada tutorial Web Guard tingkat lanjut kita sudah menyisipkan atribut tambahan seperti `role_active` dan `role_active_permissions` dari session aplikasi, mengubah session `role_active`, dan menghapus session aplikasi. Setiap sistem pasti memiliki kebutuhan atribut-atribut tambahan yang beragam dan pasti akan membuat baris kode dalam suatu file akan panjang sehingga sulit dibaca oleh programmer.
 
-Kemudian, terdapat method-method tambahan dari perintah `auth('imissu-web')`:
+Disinilah peran penting dari Refactoring! Kita akan memulai proses refactoring.
 
-##### `user()->roles()`
+1. Jalankan perintah di bawah ini.
 
-Mendapatkan daftar peran pengguna dalam bentuk array.
+```bash
+php artisan vendor:publish --tag=sso-laravel-web-session
+```
 
-##### `user()->hasRoles($roles)` 
+Perintah di atas untuk mengimpor file-file antara lain:
 
-Mengecek apakah pengguna memiliki peran tertentu. Nilai `$roles` bisa berupa string atau array.
+- app/Facades/WebSession.php
+- app/Providers/WebSessionProvider.php
+- app/Services/WebSession.php
+- routes/web-session.php
 
-##### `user()->permissions()`
+2. Daftarkan route `web-session.php` ke dalam file `routes/web.php`.
 
-Mendapatkan daftar permissions dalam bentuk array yang melekat pada role active pengguna.
+```php
+require __DIR__.'/web-session.php';
+```
 
-##### `user()->hasPermission($permissions)`
+3. Hapus baris kode di file `routes/sso-web-demo.php` dan tambahkan baris kode di file `routes/web-session.php`.
 
-Mengecek apakah pengguna memiliki permissions yang melekat pada role active user. Nilai `$permissions` bisa berupa string atau array.
+```diff
+// routes/sso-web-demo.php
+- Route::post('/sso-web-demo/change-role-active', [App\Http\Controllers\SSO\Web\DemoController::class, 'changeRoleActive']);
+// routes/web-session.php
++ Route::post('/web-session/change-role-active', [App\Http\Controllers\SSO\Web\SessionController::class, 'changeRoleActive']);
+```
 
-##### `check()`
+4. Hapus baris kode di `app/Http/Controllers/SSO/Web/DemoController.php`.
 
-Mengecek apakah pengguna sudah login?
+```diff
+- public function changeRoleActive(Request $request)
+- {   
+-    auth('imissu-web')->user()->changeRoleActive($request->role_active);
+-    if (auth('imissu-web')->user()->role_active === $request->role_active) {
+-        return response()->json([
+-            'message' => 'Berhasil mengubah peran aktif',
+-            'code' => 200
+-        ], 200);
+-    } else {
+-        return response()->json([
+-            'message' => 'Gagal mengubah peran aktif',
+-            'code' => 403
+-        ], 403);
+-    }
+- }
+```
 
-##### `guest()`
+5. Tambahkan baris kode di `app/Http/Controllers/SSO/Web/AuthController.php`.
 
-Mengecek apakah pengguna belum login?
+```diff
++ public function changeRoleActive(Request $request)
++ {   
++    auth('imissu-web')->user()->changeRoleActive($request->role_active);
++    if (auth('imissu-web')->user()->role_active === $request->role_active) {
++        return response()->json([
++            'message' => 'Berhasil mengubah peran aktif',
++            'code' => 200
++        ], 200);
++    } else {
++        return response()->json([
++            'message' => 'Gagal mengubah peran aktif',
++            'code' => 403
++        ], 403);
++    }
++ }
+```
+
+6. Daftarkan provider `WebSession` dan class `WebSession` di `config/app.php`.
+
+```php{5,12}
+'providers' => [
+    //...
+
+    // WebSession
+    App\Providers\WebSessionProvider::class,
+],
+
+'aliases' => [
+    //...
+
+    // WebSession
+    'WebSession' => App\Facades\WebSession::class,
+]
+```
+
+7. Refactor kode program di `app/Models/SSO/Web/User.php`.
+
+```php{5,14,19,24,29,34}
+<?php
+
+namespace App\Models\SSO\Web;
+
+use App\Facades\WebSession;
+use RistekUSDI\SSO\Models\Web\User as Model;
+
+class User extends Model
+{
+    protected $appends = ['role_active', 'role_active_permissions'];
+
+    public function setRoleActiveAttribute($value)
+    {
+        $this->attributes['role_active'] = WebSession::setRoleActive($value);
+    }
+
+    public function getRoleActiveAttribute()
+    {
+        return $this->attributes['role_active'] = WebSession::getRoleActive($this->roles['0']);
+    }
+
+    public function getRoleActivePermissionsAttribute()
+    {
+        return $this->attributes['role_active_permissions'] = WebSession::getRoleActivePermissions($this->roles['0']);
+    }
+
+    public function changeRoleActive($role_active)
+    {
+        WebSession::changeRoleActive($role_active);
+    }
+
+    public function forgetSession()
+    {
+        WebSession::forgetSession();
+    }
+}
+```
+
+8. Tambahkan kode program berikut di `app/Services/WebSession.php`.
+
+```php
+<?php
+
+namespace App\Services;
+
+class WebSession
+{
+    public function setRoleActive($value)
+    {
+        if (session()->has('role_active')) {
+            return session()->get('role_active');
+        } else {
+            session()->put('role_active', $value);
+            session()->save();
+            return $value;
+        }
+    }
+
+    public function getRoleActive($role)
+    {
+        if (session()->has('role_active')) {
+            return session()->get('role_active');
+        } else {
+            return $role;
+        }
+    }
+
+    public function getRoleActivePermissions($role)
+    {
+        $role_active = $role;
+        if (session()->has('role_active')) {
+            $role_active = session()->get('role_active');
+        }
+
+        $permissions = [
+            'Admin' => [
+                'disable-user',
+                'manage-roles',
+                'impersonate'
+            ],
+            'Developer' => [
+                'manage-settings',
+                'manage-users',
+                'manage-roles',
+                'impersonate'
+            ],
+        ];
+
+        $selected_permissions = [];
+        foreach ($permissions as $key => $value) {
+            if ($key == $role_active) {
+                $selected_permissions = $permissions[$key];
+            }
+        }
+
+        return $selected_permissions;
+    }
+
+    public function changeRoleActive($role_active)
+    {
+        session()->forget('role_active');
+        session()->save();
+        session()->put('role_active', $role_active);
+        session()->save();
+    }
+
+    public function forgetSession()
+    {
+        session()->forget(['role_active', 'role_active_permissions']);
+        session()->save();
+    }
+}
+```
+
+7. Ganti baris kode di `resources/views/sso-web/advance.blade.php`.
+
+```diff
+- <input type="hidden" name="url_change_role_active" value="{{ url('/sso-web-demo/change-role-active') }}">
++ <input type="hidden" name="url_change_role_active" value="{{ url('/web-session/change-role-active') }}">
+```
+
+8. Cek ulang apakah halaman "Advance" masih tetap berjalan sebelum direfactoring. Jika berhasil maka proses refactoring sudah berhasil. Jika gagal silakan cek kembali langkah-langkah di atas.
+
+## Web Guard - Auth
+
+Berikut perintah-perintah yang digunakan untuk mengakses data pengguna SSO.
+
+```php
+# Attributes
+
+// sub adalah id user di Keycloak.
+// TIDAK DIREKOMENDASIKAN menggunakan atribut ini utk menyimpan nilai.
+auth('imissu-web')->user()->sub;
+
+// Identitas lengkap dalam bentuk NIP/NIM Nama pengguna
+auth('imissu-web')->user()->full_identity;
+
+// Username pengguna. Anda bisa memilih salah satu penggunaan.
+auth('imissu-web')->user()->username;
+auth('imissu-web')->user()->preferred_username;
+
+// Identifier = NIP/NIM
+auth('imissu-web')->user()->identifier;
+
+auth('imissu-web')->user()->name;
+
+auth('imissu-web')->user()->email;
+
+// Daftar peran pengguna dalam suatu aplikasi.
+auth('imissu-web')->user()->roles;
+
+// id user di Unud.
+auth('imissu-web')->user()->unud_identifier_id;
+
+// id sso Unud.
+// DIREKOMENDASIKAN untuk menggunakan atribut ini untuk menyimpan nilai.
+auth('imissu-web')->user()->unud_sso_id;
+
+// id tipe pengguna di Unud.
+auth('imissu-web')->user()->unud_user_type_id;
+
+# Methods
+
+// Mendapatkan daftar peran aplikasi pengguna dalam bentuk array.
+// sama dengan auth('imissu-web')->user()->roles
+auth('imissu-web')->user()->roles();
+
+// Mengecek apakah pengguna memiliki peran tertentu dalam daftar peran aplikasi. 
+// Nilai `$roles` bertipe string atau array.
+auth('imissu-web')->user()->hasRole($roles);
+
+// Mengecek apakah pengguna sedang dalam peran aktif tertentu.
+auth('imissu-web')->user()->hasRoleActive($roles);
+
+// Mengecek apakah pengguna memiliki permissions yang melekat pada peran aktif pengguna.
+// Nilai `$permissions` bertipe string atau array.
+auth('imissu-web')->user()->hasPermission($permissions);
+
+# Utility
+
+// Mengecek apakah pengguna sudah login?
+auth('imissu-web')->check();
+
+// Mengecek apakah pengguna belum login?
+auth('imissu-web')->guest();
+```
 
 ## Soal Sering Ditanya
 
