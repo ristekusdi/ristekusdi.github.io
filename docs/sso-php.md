@@ -73,21 +73,21 @@ File-file SSO yang disalin antara lain:
 - `Netauth.php` di folder `application/controllers`.
 - `Webauth.php` di folder `application/libraries`.
 
-2. Hubungkan controller `Netauth.php` ke dalam routing di file `application/config/routes.php`.
+2. Hubungkan controller `Webauth.php` ke dalam routing di file `application/config/routes.php`.
 
 ```php
-$route['sso/login'] = 'netauth/login';
-$route['sso/logout'] = 'netauth/logout';
-$route['sso/callback'] = 'netauth/callback';
-$route['sso/change_role_active'] = 'netauth/change_role_active';
-$route['sso/change_kv_active'] = 'netauth/change_kv_active';
+$route['sso/login'] = 'webauth/login';
+$route['sso/logout'] = 'webauth/logout';
+$route['sso/callback'] = 'webauth/callback';
+$route['sso/change_role_active'] = 'webauth/change_role_active';
+$route['sso/change_kv_active'] = 'webauth/change_kv_active';
 ```
 
 3. Tambahkan `webauth` sebagai autoload library di direktori `application/config/autoload.php`
 
 ```php
 // ... artinya autoload library yang sudah pernah Anda tambahkan sebelumnya
-$autoload['libraries'] = array('...','webauth');
+$autoload['libraries'] = array('...','webguard');
 ```
 
 4. Lakukan perubahan nilai pada `base_url`, `composer_autoload` dan `enable_hooks` di file `application/config/config.php`.
@@ -126,7 +126,7 @@ Daftar perintah auth terbagi menjadi dua bagian yakni [PHP](#auth-php) dan [Code
 
 Pustaka ini mengimplementasikan `Illuminate\Contracts\Auth\Guard` dari Laravel sehingga seolah-olah Anda seperti menggunakan Laravel.
 
-Caranya adalah dengan mengimpor class `WebGuard` dengan perintah `use RistekUSDI\SSO\Auth\Guard\WebGuard;` maka Anda akan memiliki beberapa fungsi berikut.
+Caranya adalah dengan mengimpor class `WebGuard` dengan perintah `use RistekUSDI\SSO\PHP\Auth\Guard\WebGuard;` maka Anda akan memiliki beberapa fungsi berikut.
 
 ##### `(new WebGuard())->check()`
 
@@ -158,27 +158,27 @@ Cara mengakses atribut tersebut dengan perintah `(new WebGuard())->user()-><nama
 
 Berikut daftar perintah auth pada CodeIgniter 3.x
 
-##### `$this->webauth->check()` 
+##### `$this->webguard->check()` 
 
 Mengecek apakah ada pengguna yang login atau tidak.
 
-##### `$this->webauth->authenticated()`
+##### `$this->webguard->authenticated()`
 
 Mengembalikan pengguna ke halaman login SSO jika belum login.
 
-##### `$this->webauth->user()->get()`
+##### `$this->webguard->user()->get()`
 
 Mendapatkan data pengguna, `role_active`, `role_permissions` (permissions dari role active), `arr_menu` dan data-data lainnya yang diambil dari `$_SESSION`.
 
-##### `$this->webauth->user()->roles()` 
+##### `$this->webguard->user()->roles()` 
 
 Mendapatkan data roles yang melekat pada pengguna.
 
-##### `$this->webauth->user()->hasRole($role)`
+##### `$this->webguard->user()->hasRole($role)`
 
 Mengecek apakah pengguna memiliki role tertentu atau tidak (role bisa lebih dari 1 dengan format array) dan mengembalikan nilai bertipe boolean.
 
-##### `$this->webauth->user()->hasPermission($permission)`
+##### `$this->webguard->user()->hasPermission($permission)`
  
 Mengecek apakah pengguna memiliki permission tertentu atau tidak (permission bisa lebih dari 1 dengan format array) dan mengembalikan nilai booelan.
 
@@ -186,6 +186,6 @@ Mengecek apakah pengguna memiliki permission tertentu atau tidak (permission bis
 
 ##### Bagaimana cara mendapatkan access token dan refresh token?
 
-Impor class `SSOService` dengan perintah `use RistekUSDI\SSO\Services\SSOService;`.
+Impor class `SSOService` dengan perintah `use RistekUSDI\SSO\PHP\Services\SSOService;`.
 
 Gunakan perintah `(new SSOService())->retrieveToken()` untuk mendapatkan access token dan refresh token.
