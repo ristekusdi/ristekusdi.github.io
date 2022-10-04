@@ -558,7 +558,7 @@ auth('imissu-web')->user()->name;
 auth('imissu-web')->user()->email;
 
 // Daftar peran pengguna dalam suatu aplikasi.
-auth('imissu-web')->user()->roles;
+auth('imissu-web')->user()->client_roles;
 
 // id user di Unud.
 auth('imissu-web')->user()->unud_identifier_id;
@@ -581,10 +581,6 @@ auth('imissu-web')->user()->identifier;
 auth('imissu-web')->user()->full_identity;
 
 # Methods
-
-// Mendapatkan daftar peran aplikasi pengguna dalam bentuk array.
-// sama dengan auth('imissu-web')->user()->roles
-auth('imissu-web')->user()->roles();
 
 // Mengecek apakah pengguna memiliki peran tertentu dalam daftar peran aplikasi. 
 // Nilai `$roles` bertipe string atau array.
