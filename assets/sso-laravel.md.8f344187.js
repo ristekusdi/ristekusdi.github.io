@@ -334,7 +334,7 @@ import{_ as s,c as a,o as n,a as l}from"./app.c828cd1a.js";var p="/assets/sso-we
 <span class="line"><span style="color:#82AAFF;">auth</span><span style="color:#89DDFF;">(</span><span style="color:#89DDFF;">&#39;</span><span style="color:#C3E88D;">imissu-web</span><span style="color:#89DDFF;">&#39;</span><span style="color:#89DDFF;">)-&gt;</span><span style="color:#82AAFF;">user</span><span style="color:#89DDFF;">()-&gt;</span><span style="color:#A6ACCD;">email</span><span style="color:#89DDFF;">;</span></span>
 <span class="line"></span>
 <span class="line"><span style="color:#676E95;font-style:italic;">// Daftar peran pengguna dalam suatu aplikasi.</span></span>
-<span class="line"><span style="color:#82AAFF;">auth</span><span style="color:#89DDFF;">(</span><span style="color:#89DDFF;">&#39;</span><span style="color:#C3E88D;">imissu-web</span><span style="color:#89DDFF;">&#39;</span><span style="color:#89DDFF;">)-&gt;</span><span style="color:#82AAFF;">user</span><span style="color:#89DDFF;">()-&gt;</span><span style="color:#A6ACCD;">roles</span><span style="color:#89DDFF;">;</span></span>
+<span class="line"><span style="color:#82AAFF;">auth</span><span style="color:#89DDFF;">(</span><span style="color:#89DDFF;">&#39;</span><span style="color:#C3E88D;">imissu-web</span><span style="color:#89DDFF;">&#39;</span><span style="color:#89DDFF;">)-&gt;</span><span style="color:#82AAFF;">user</span><span style="color:#89DDFF;">()-&gt;</span><span style="color:#A6ACCD;">client_roles</span><span style="color:#89DDFF;">;</span></span>
 <span class="line"></span>
 <span class="line"><span style="color:#676E95;font-style:italic;">// id user di Unud.</span></span>
 <span class="line"><span style="color:#82AAFF;">auth</span><span style="color:#89DDFF;">(</span><span style="color:#89DDFF;">&#39;</span><span style="color:#C3E88D;">imissu-web</span><span style="color:#89DDFF;">&#39;</span><span style="color:#89DDFF;">)-&gt;</span><span style="color:#82AAFF;">user</span><span style="color:#89DDFF;">()-&gt;</span><span style="color:#A6ACCD;">unud_identifier_id</span><span style="color:#89DDFF;">;</span></span>
@@ -357,10 +357,6 @@ import{_ as s,c as a,o as n,a as l}from"./app.c828cd1a.js";var p="/assets/sso-we
 <span class="line"><span style="color:#82AAFF;">auth</span><span style="color:#89DDFF;">(</span><span style="color:#89DDFF;">&#39;</span><span style="color:#C3E88D;">imissu-web</span><span style="color:#89DDFF;">&#39;</span><span style="color:#89DDFF;">)-&gt;</span><span style="color:#82AAFF;">user</span><span style="color:#89DDFF;">()-&gt;</span><span style="color:#A6ACCD;">full_identity</span><span style="color:#89DDFF;">;</span></span>
 <span class="line"></span>
 <span class="line"><span style="color:#676E95;font-style:italic;"># Methods</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#676E95;font-style:italic;">// Mendapatkan daftar peran aplikasi pengguna dalam bentuk array.</span></span>
-<span class="line"><span style="color:#676E95;font-style:italic;">// sama dengan auth(&#39;imissu-web&#39;)-&gt;user()-&gt;roles</span></span>
-<span class="line"><span style="color:#82AAFF;">auth</span><span style="color:#89DDFF;">(</span><span style="color:#89DDFF;">&#39;</span><span style="color:#C3E88D;">imissu-web</span><span style="color:#89DDFF;">&#39;</span><span style="color:#89DDFF;">)-&gt;</span><span style="color:#82AAFF;">user</span><span style="color:#89DDFF;">()-&gt;</span><span style="color:#82AAFF;">roles</span><span style="color:#89DDFF;">();</span></span>
 <span class="line"></span>
 <span class="line"><span style="color:#676E95;font-style:italic;">// Mengecek apakah pengguna memiliki peran tertentu dalam daftar peran aplikasi. </span></span>
 <span class="line"><span style="color:#676E95;font-style:italic;">// Nilai \`$roles\` bertipe string atau array.</span></span>
