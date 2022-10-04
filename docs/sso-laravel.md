@@ -144,13 +144,13 @@ class User extends Model
         if (session()->has('role_active')) {
             return $this->attributes['role_active'] = session()->get('role_active');
         } else {
-            return $this->attributes['role_active'] = $this->roles['0'];
+            return $this->attributes['role_active'] = $this->getAttribute('client_roles')['0'];
         }
     }
 
     public function getRoleActivePermissionsAttribute()
     {
-        $role_active = $this->roles['0'];
+        $role_active = $this->getAttribute('client_roles')['0'];
         if (session()->has('role_active')) {
             $role_active = session()->get('role_active');
         }
@@ -438,12 +438,12 @@ class User extends Model
 
     public function getRoleActiveAttribute()
     {
-        return $this->attributes['role_active'] = WebSession::getRoleActive($this->roles['0']);
+        return $this->attributes['role_active'] = WebSession::getRoleActive($this->getAttribute('client_roles')['0']);
     }
 
     public function getRoleActivePermissionsAttribute()
     {
-        return $this->attributes['role_active_permissions'] = WebSession::getRoleActivePermissions($this->roles['0']);
+        return $this->attributes['role_active_permissions'] = WebSession::getRoleActivePermissions($this->getAttribute('client_roles')['0']);
     }
 
     public function changeRoleActive($role_active)
