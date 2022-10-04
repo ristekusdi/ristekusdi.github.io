@@ -2,29 +2,11 @@
 
 Petunjuk penggunaan pustaka SSO PHP Universitas Udayana.
 
-## Memasang Nilai Environment
+## Prasyarat
 
-Anda akan mendapatkan isian konfigurasi berikut setelah membuat client app dan menyalin environment client app di IMISSU2.
+- PHP versi minimal 7.2.5
 
-```bash
-SSO_ADMIN_URL=https://your-sso-domain.com
-SSO_BASE_URL=https://your-sso-domain.com
-SSO_REALM=master
-SSO_REALM_PUBLIC_KEY=xxxxxxxxxx
-SSO_CLIENT_ID=xxxxxxx
-SSO_CLIENT_SECRET=xxxxxx
-SSO_CALLBACK=http://yourapp.test/sso/callback
-```
-
-Isian konfigurasi tersebut dipasang pada file `.env`.
-
-- `SSO_ADMIN_URL` adalah URL server admin SSO.
-- `SSO_BASE_URL` adalah URL server SSO.
-- `SSO_REALM` adalah "realm" tempat client app Anda berada yang didapatkan dari IMISSU Dashboard.
-- `SSO_REALM_PUBLIC_KEY` adalah realm public key server SSO yang didapatkan dari IMISSU Dashboard.
-- `SSO_CLIENT_ID` adalah client id yang didapatkan dari IMISSU Dashboard.
-- `SSO_CLIENT_SECRET` adalah client secret yang didapatkan dari IMISSU Dashboard.
-- `SSO_CALLBACK` adalah callback URL yang berfungsi ketika proses login berhasil dari SSO.
+> Catatan saat pengujian tutorial dilakukan pada CodeIgniter versi 3.x. Bila Anda mengalami kendala silakan buat [isu di ristekusdi/sso-php](https://github.com/ristekusdi/sso-php/issues).
 
 ## Instalasi
 
@@ -33,6 +15,8 @@ Gunakan perintah di bawah ini untuk menginstal package ristekusdi/sso-php
 ```bash
 composer require ristekusdi/sso-php
 ```
+
+Setelah diinstal, silakan ambil nilai environment SSO di website IMISSU2 dev atau IMISSU2 dan taruh di file `.env`.
 
 ## Pengaturan
 
@@ -107,7 +91,7 @@ $config['composer_autoload'] = "./vendor/autoload.php";
 $config['enable_hooks'] = TRUE;
 ```
 
-5. Untuk mengambil nilai dari file `.env` dengan perintah `$_ENV['nama_key']`, masukkan sintaks berikut di dalam file `application/config/hooks.php`.
+5. Masukkan sintaks berikut untuk mengambil nilai dari file `.env` dengan perintah `$_ENV['nama_key']` atau `$_SERVER['nama_key']` di file `application/config/hooks.php`.
 
 ```php
 $hook['pre_system'] = function () {
@@ -128,59 +112,77 @@ Pustaka ini mengimplementasikan `Illuminate\Contracts\Auth\Guard` dari Laravel s
 
 Caranya adalah dengan mengimpor class `WebGuard` dengan perintah `use RistekUSDI\SSO\PHP\Auth\Guard\WebGuard;` maka Anda akan memiliki beberapa fungsi berikut.
 
-##### `(new WebGuard())->check()`
+Berikut perintah-perintah yang digunakan untuk mengakses data pengguna SSO.
 
-Mengecek apakah pengguna sudah terotentikasi atau login.
+```php
+# Methods
 
-##### `(new WebGuard())->guest()`
+// Mengecek apakah pengguna sudah terotentikasi atau login.
+(new WebGuard())->check();
 
-Mengecek apakah pengguna adalah "tamu" (belum login atau terotentikasi).
+// Mengecek apakah pengguna adalah "tamu" (belum login atau terotentikasi).
+(new WebGuard())->guest();
 
-##### `(new WebGuard())->user()`
+// Objek pengguna
+(new WebGuard())->user();
 
-Mendapatkan data pengguna yang terotentikasi.
+# Attributes
 
-Atribut pengguna yang tersedia antara lain:
+// sub adalah id user di Keycloak.
+// TIDAK DIREKOMENDASIKAN menggunakan atribut ini utk menyimpan nilai.
+(new WebGuard())->user()->sub;
 
-- `sub`
-- `full_identity` dalam bentuk NIP - Nama Pengguna
-- `username`
-- `identifier` adalah NIP atau NIM.
-- `name`
-- `email`
-- `roles`
-- `unud_identifier_id`
-- `unud_type_id`
+// NIP/NIM - Nama Pengguna
+(new WebGuard())->user()->full_identity;
+(new WebGuard())->user()->name;
 
-Cara mengakses atribut tersebut dengan perintah `(new WebGuard())->user()-><nama_atribut>`. Seperti `(new WebGuard())->user()->name`.
+// Username
+(new WebGuard())->user()->preferred_username;
+(new WebGuard())->user()->username;
+
+// NIP atau NIM
+(new WebGuard())->user()->identifier;
+
+// Email
+(new WebGuard())->user()->email;
+
+// Daftar peran pengguna dalam suatu aplikasi.
+(new WebGuard())->user()->client_roles;
+
+// id user di Unud.
+(new WebGuard())->user()->unud_identifier_id;
+
+// id tipe pengguna di Unud.
+(new WebGuard())->user()->unud_user_type_id;
+
+// id sso Unud.
+// DIREKOMENDASIKAN untuk menggunakan atribut ini untuk menyimpan nilai.
+(new WebGuard())->user()->unud_sso_id;
+```
 
 ### Auth CodeIgniter 3.x
 
 Berikut daftar perintah auth pada CodeIgniter 3.x
 
-##### `$this->webguard->check()` 
+```php
 
-Mengecek apakah ada pengguna yang login atau tidak.
+# Methods
 
-##### `$this->webguard->authenticated()`
+// Mengecek apakah ada pengguna yang login atau tidak.
+$this->webguard->check();
 
-Mengembalikan pengguna ke halaman login SSO jika belum login.
+// Mengembalikan pengguna ke halaman login SSO jika belum login.
+$this->webguard->authenticated();
 
-##### `$this->webguard->user()->get()`
+// Objek pengguna
+$this->webguard->user()->get();
 
-Mendapatkan data pengguna, `role_active`, `role_permissions` (permissions dari role active), `arr_menu` dan data-data lainnya yang diambil dari `$_SESSION`.
+// Mengecek apakah pengguna memiliki role tertentu atau tidak (role bisa lebih dari 1 dengan format array) dan mengembalikan nilai bertipe boolean.
+$this->webguard->user()->hasRole($role);
 
-##### `$this->webguard->user()->roles()` 
-
-Mendapatkan data roles yang melekat pada pengguna.
-
-##### `$this->webguard->user()->hasRole($role)`
-
-Mengecek apakah pengguna memiliki role tertentu atau tidak (role bisa lebih dari 1 dengan format array) dan mengembalikan nilai bertipe boolean.
-
-##### `$this->webguard->user()->hasPermission($permission)`
- 
-Mengecek apakah pengguna memiliki permission tertentu atau tidak (permission bisa lebih dari 1 dengan format array) dan mengembalikan nilai booelan.
+// Mengecek apakah pengguna memiliki permission tertentu atau tidak (permission bisa lebih dari 1 dengan format array) dan mengembalikan nilai booelan.
+$this->webguard->user()->hasPermission($permission);
+```
 
 ## Soal Sering Ditanya
 

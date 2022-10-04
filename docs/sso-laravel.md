@@ -2,6 +2,13 @@
 
 Petunjuk penggunaan pustaka SSO Laravel Universitas Udayana.
 
+## Prasyarat
+
+- PHP versi minimal 7.2.5 atau 8.0.2.
+- Laravel versi 5.6, 6, 7, 8, dan 9.
+
+> Catatan saat pengujian tutorial dilakukan pada Laravel versi 8. Bila Anda mengalami kendala silakan buat [isu di ristekusdi/sso-laravel](https://github.com/ristekusdi/sso-laravel/issues).
+
 ## Tutorial Web Guard - Tingkat Dasar
 
 Tutorial ini akan menjelaskan cara memproteksi halaman-halaman dengan otentikasi SSO IMISSU.
