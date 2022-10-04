@@ -2,6 +2,12 @@
 
 Petunjuk penggunaan pustaka SSO PHP Universitas Udayana.
 
+## Prasyarat
+
+- PHP versi minimal 7.2.5
+
+> Catatan saat pengujian tutorial dilakukan pada CodeIgniter versi 3.x. Bila Anda mengalami kendala silakan buat [isu di ristekusdi/sso-php](https://github.com/ristekusdi/sso-php/issues).
+
 ## Instalasi
 
 Gunakan perintah di bawah ini untuk menginstal package ristekusdi/sso-php
