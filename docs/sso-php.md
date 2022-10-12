@@ -54,20 +54,22 @@ Atau bila Anda menggunakan terminal bawaan Laragon (CMDER) gunakan perintah di b
 
 File-file SSO yang disalin antara lain:
 
-- `Netauth.php` di folder `application/controllers`.
-- `Webauth.php` di folder `application/libraries`.
+- `Webauth.php` di folder `application/controllers`.
+- `Webguard.php` di folder `application/libraries`.
 
 2. Hubungkan controller `Webauth.php` ke dalam routing di file `application/config/routes.php`.
 
 ```php
+/** Otentikasi */
 $route['sso/login'] = 'webauth/login';
 $route['sso/logout'] = 'webauth/logout';
 $route['sso/callback'] = 'webauth/callback';
-$route['sso/change_role_active'] = 'webauth/change_role_active';
-$route['sso/change_kv_active'] = 'webauth/change_kv_active';
+/** Mengganti session */
+$route['web-session/change_role_active'] = 'webauth/change_role_active';
+$route['web-session/change_kv_active'] = 'webauth/change_kv_active';
 ```
 
-3. Tambahkan `webauth` sebagai autoload library di direktori `application/config/autoload.php`
+3. Tambahkan `webguard` sebagai autoload library di direktori `application/config/autoload.php`
 
 ```php
 // ... artinya autoload library yang sudah pernah Anda tambahkan sebelumnya
@@ -100,7 +102,7 @@ $hook['pre_system'] = function () {
 };
 ```
 
-6. Agar halaman tertentu di dalam suatu proyek dilindungi oleh autentikasi, tambahkan perintah `$this->webauth->authenticated()` ke dalam `constructor` di suatu controller. Sehingga jika pengguna mengakses halaman tertentu belum terautentikasi maka di arahkan ke halaman login SSO.
+6. Agar halaman tertentu di dalam suatu proyek dilindungi oleh autentikasi, tambahkan perintah `$this->webguard->authenticated()` ke dalam `constructor` di suatu controller. Sehingga jika pengguna mengakses halaman tertentu belum terautentikasi maka di arahkan ke halaman login SSO.
 
 ## Daftar Perintah Auth
 
@@ -168,7 +170,7 @@ Berikut daftar perintah auth pada CodeIgniter 3.x
 
 # Methods
 
-// Mengecek apakah ada pengguna yang login atau tidak.
+// Mengecek apakah ada pengguna telah login via SSO atau tidak.
 $this->webguard->check();
 
 // Mengembalikan pengguna ke halaman login SSO jika belum login.
@@ -176,6 +178,38 @@ $this->webguard->authenticated();
 
 // Objek pengguna
 $this->webguard->user()->get();
+# Attributes
+
+// sub adalah id user di Keycloak.
+// TIDAK DIREKOMENDASIKAN menggunakan atribut ini utk menyimpan nilai.
+$this->webguard->user()->get()->sub;
+
+// NIP/NIM - Nama Pengguna
+$this->webguard->user()->get()->full_identity;
+$this->webguard->user()->get()->name;
+
+// Username
+$this->webguard->user()->get()->preferred_username;
+$this->webguard->user()->get()->username;
+
+// NIP atau NIM
+$this->webguard->user()->get()->identifier;
+
+// Email
+$this->webguard->user()->get()->email;
+
+// Daftar peran pengguna dalam suatu aplikasi.
+$this->webguard->user()->get()->client_roles;
+
+// id user di Unud.
+$this->webguard->user()->get()->unud_identifier_id;
+
+// id tipe pengguna di Unud.
+$this->webguard->user()->get()->unud_user_type_id;
+
+// id sso Unud.
+// DIREKOMENDASIKAN untuk menggunakan atribut ini untuk menyimpan nilai.
+$this->webguard->user()->get()->unud_sso_id;
 
 // Mengecek apakah pengguna memiliki role tertentu atau tidak (role bisa lebih dari 1 dengan format array) dan mengembalikan nilai bertipe boolean.
 $this->webguard->user()->hasRole($role);
