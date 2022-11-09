@@ -339,6 +339,7 @@ php artisan vendor:publish --tag=sso-laravel-web-session
 
 Perintah di atas untuk mengimpor file-file antara lain:
 
+- app/Http/Controllers/SSO/Web/SessionController.php
 - app/Facades/WebSession.php
 - app/Providers/WebSessionProvider.php
 - app/Services/WebSession.php
@@ -366,7 +367,7 @@ require __DIR__.'/web-session.php';
 + Route::post('/web-session/change-role-active', [App\Http\Controllers\SSO\Web\SessionController::class, 'changeRoleActive']);
 ```
 
-4. Hapus baris kode di `app/Http/Controllers/SSO/Web/DemoController.php`.
+4. Hapus baris kode di bawah ini pada file `app/Http/Controllers/SSO/Web/DemoController.php`.
 
 ```diff
 - public function changeRoleActive(Request $request)
@@ -386,7 +387,7 @@ require __DIR__.'/web-session.php';
 - }
 ```
 
-5. Tambahkan baris kode di `app/Http/Controllers/SSO/Web/AuthController.php`.
+5. Tambahkan baris kode di bawah ini pada file `app/Http/Controllers/SSO/Web/SessionController.php`.
 
 ```diff
 + public function changeRoleActive(Request $request)
