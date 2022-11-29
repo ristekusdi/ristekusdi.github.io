@@ -6,7 +6,7 @@ Petunjuk penggunaan pustaka SSO PHP Universitas Udayana.
 
 - PHP versi minimal 7.2.5
 
-> Catatan saat pengujian tutorial dilakukan pada CodeIgniter versi 3.x. Bila Anda mengalami kendala silakan buat [isu di ristekusdi/sso-php](https://github.com/ristekusdi/sso-php/issues).
+> Pengujian tutorial dilakukan pada CodeIgniter versi 3.x. Bila Anda mengalami kendala silakan buat [isu di ristekusdi/sso-php](https://github.com/ristekusdi/sso-php/issues).
 
 ## Instalasi
 
@@ -17,6 +17,11 @@ composer require ristekusdi/sso-php
 ```
 
 Setelah diinstal, silakan ambil nilai environment SSO di website IMISSU2 dev atau IMISSU2 dan taruh di file `.env`.
+
+**Catatan:**
+
+1. Nilai dari `KEYCLOAK_CALLBACK` disesuaikan.
+2. Nilai dari `KEYCLOAK_REDIRECT_URL` adalah path dari halaman utama aplikasi Anda terlepas diproteksi oleh SSO atau tidak.
 
 ## Pengaturan
 
