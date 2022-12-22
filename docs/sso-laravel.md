@@ -286,10 +286,7 @@ Kita telah menambahkan atribut tambahan dari session aplikasi. Bagaimana cara me
 public function logout()
 {
     auth('imissu-web')->user()->forgetSession();
-    $token = IMISSUWeb::retrieveToken();
-    IMISSUWeb::forgetToken();
-
-    $url = IMISSUWeb::getLogoutUrl($token['id_token']);
+    $url = IMISSUWeb::getLogoutUrl();
     return redirect($url);
 }
 ```
