@@ -86,7 +86,7 @@ Hal ini bertujuan ketika login dengan SSO maka langsung diarahkan ke halaman `/s
 require __DIR__.'/sso-web-demo.php';
 ```
 
-8. Buka halaman `/sso-web-demo` dengan URL `http://localhost:<port>/sso-web-demo` atau `http://yourapp.test/sso-web-basic` dengan bantuan [Laragon](https://laragon.org/docs/pretty-urls.html).
+8. Buka halaman `/sso-web-demo` dengan URL `http://localhost:<port>/sso-web-demo` atau `http://yourapp.test/sso-web-demo` dengan bantuan [Laragon](https://laragon.org/docs/pretty-urls.html).
 
 9. Klik tautan "Basic" dan tampilannya seperti gambar di bawah.
 
