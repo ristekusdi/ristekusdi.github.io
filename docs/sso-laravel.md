@@ -4,8 +4,8 @@ Petunjuk penggunaan pustaka SSO Laravel Universitas Udayana.
 
 ## Prasyarat
 
-- PHP versi minimal 7.2.5 atau 8.0.2.
-- Laravel versi 5.6, 6, 7, 8, dan 9.
+- PHP versi minimal 7.4.
+- Laravel versi 6 sampai 10.
 
 > Catatan saat pengujian tutorial dilakukan pada Laravel versi 8. Bila Anda mengalami kendala silakan buat [isu di ristekusdi/sso-laravel](https://github.com/ristekusdi/sso-laravel/issues).
 
@@ -320,9 +320,7 @@ Pada tutorial Web Guard tingkat lanjut ini kita telah belajar cara:
 
 ## Tutorial Web Guard - Refactoring
 
-Refactoring adalah proses mengubah struktur kode program tanpa mengubah atau menambah fungsi program yang sudah ada. 
-
-Manfaat dari proses refactoring antara lain memudahkan program dibaca oleh programmer lain karena baris kode dirampingkan dan memudahkan programmer dan programmer lainnya membaca kode program.
+Refactoring adalah proses mengubah struktur kode program tanpa mengubah atau menambah fungsi program yang sudah ada. Manfaat dari proses refactoring antara lain memudahkan kode program dibaca dan dipahami oleh programmer lain.
 
 Pada tutorial Web Guard tingkat lanjut kita sudah menyisipkan atribut tambahan seperti `role_active` dan `role_active_permissions` dari session aplikasi, mengubah session `role_active`, dan menghapus session aplikasi. Setiap sistem pasti memiliki kebutuhan atribut-atribut tambahan yang beragam dan pasti akan membuat baris kode dalam suatu file akan panjang sehingga sulit dibaca oleh programmer.
 
