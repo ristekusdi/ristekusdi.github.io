@@ -1,0 +1,1 @@
+import{_ as a,o as e,c as t,Q as s}from"./chunks/framework.cc795e4d.js";const m=JSON.parse('{"title":"Ristek USDI","description":"","frontmatter":{},"headers":[],"relativePath":"index.md","filePath":"index.md"}'),n={name:"index.md"},i=s("",5),o=[i];function r(l,k,c,d,p,u){return e(),t("div",null,o)}const h=a(n,[["render",r]]);export{m as __pageData,h as default};
