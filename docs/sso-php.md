@@ -70,8 +70,8 @@ $route['sso/login'] = 'webauth/login';
 $route['sso/logout'] = 'webauth/logout';
 $route['sso/callback'] = 'webauth/callback';
 /** Mengganti session */
-$route['web-session/change_role_active'] = 'webauth/change_role_active';
-$route['web-session/change_kv_active'] = 'webauth/change_kv_active';
+$route['web-session/change_active_role'] = 'webauth/change_active_role';
+$route['web-session/change_active_kv'] = 'webauth/change_active_kv';
 ```
 
 3. Tambahkan `webguard` sebagai autoload library di direktori `application/config/autoload.php`
@@ -136,8 +136,16 @@ Berikut perintah-perintah yang digunakan untuk mengakses data pengguna SSO.
 # Attributes
 
 // sub adalah id user di Keycloak.
-// TIDAK DIREKOMENDASIKAN menggunakan atribut ini utk menyimpan nilai.
+// Atribut ini TIDAK DIREKOMENDASIKAN menyimpan id unik pengguna.
 (new WebGuard())->user()->sub;
+
+// id sso Unud.
+// Atribut ini DIREKOMENDASIKAN untuk menyimpan id unik pengguna.
+(new WebGuard())->user()->unud_sso_id;
+
+// id user di Unud.
+// Atribut ini DIREKOMENDASIKAN untuk menyimpan id unik pengguna.
+(new WebGuard())->user()->unud_identifier_id;
 
 // NIP/NIM - Nama Pengguna
 (new WebGuard())->user()->full_identity;
@@ -153,18 +161,11 @@ Berikut perintah-perintah yang digunakan untuk mengakses data pengguna SSO.
 // Email
 (new WebGuard())->user()->email;
 
-// Daftar peran pengguna dalam suatu aplikasi.
+// Daftar peran yang dimiliki pengguna untuk mengakses suatu aplikasi.
 (new WebGuard())->user()->client_roles;
-
-// id user di Unud.
-(new WebGuard())->user()->unud_identifier_id;
 
 // id tipe pengguna di Unud.
 (new WebGuard())->user()->unud_user_type_id;
-
-// id sso Unud.
-// DIREKOMENDASIKAN untuk menggunakan atribut ini untuk menyimpan nilai.
-(new WebGuard())->user()->unud_sso_id;
 ```
 
 ### Auth CodeIgniter 3.x
@@ -186,7 +187,7 @@ $this->webguard->user()->get();
 # Attributes
 
 // sub adalah id user di Keycloak.
-// TIDAK DIREKOMENDASIKAN menggunakan atribut ini utk menyimpan nilai.
+// Atribut ini TIDAK DIREKOMENDASIKAN untuk menyimpan id unik pengguna.
 $this->webguard->user()->get()->sub;
 
 // NIP/NIM - Nama Pengguna
@@ -203,18 +204,19 @@ $this->webguard->user()->get()->identifier;
 // Email
 $this->webguard->user()->get()->email;
 
-// Daftar peran pengguna dalam suatu aplikasi.
+// Daftar peran yang dimiliki pengguna untuk mengakses suatu aplikasi.
 $this->webguard->user()->get()->client_roles;
-
-// id user di Unud.
-$this->webguard->user()->get()->unud_identifier_id;
 
 // id tipe pengguna di Unud.
 $this->webguard->user()->get()->unud_user_type_id;
 
 // id sso Unud.
-// DIREKOMENDASIKAN untuk menggunakan atribut ini untuk menyimpan nilai.
+// Atribut ini DIREKOMENDASIKAN untuk menyimpan id unik pengguna.
 $this->webguard->user()->get()->unud_sso_id;
+
+// id user di Unud.
+// Atribut ini DIREKOMENDASIKAN untuk menyimpan id unik pengguna.
+$this->webguard->user()->get()->unud_identifier_id;
 
 // Mengecek apakah pengguna memiliki role tertentu atau tidak (role bisa lebih dari 1 dengan format array) dan mengembalikan nilai bertipe boolean.
 $this->webguard->user()->hasRole($role);
