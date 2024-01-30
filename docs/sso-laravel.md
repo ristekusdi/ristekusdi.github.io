@@ -59,13 +59,13 @@ Perintah di atas untuk mengimpor file-file antara lain:
 // Laravel 6 - 7
 php artisan vendor:publish --tag=sso-laravel-web-route-v1
 
-// Laravel 8 - 9
+// Laravel 8 ke atas
 php artisan vendor:publish --tag=sso-laravel-web-route-v2
 ```
 
-Perintah ini akan menghasilkan file `sso-web.php` di folder `routes`.
+Perintah ini akan menghasilkan file `sso-web.php` di folder `routes`. Isi dari file tersebut adalah route dengan method `login`, `callback`, `logout`.
 
-5. Tambahkan route `sso-web.php` ke dalam file `routes/web.php`. Ini berfungsi untuk menambahkan route SSO (login, callback, logout).
+5. Tambahkan route `sso-web.php` ke dalam file `routes/web.php`.
 
 ```php
 require __DIR__.'/sso-web.php';
@@ -107,7 +107,7 @@ Pada tutorial Web Guard tingkat dasar ini kita telah belajar cara:
 Anda diwajibkan mengikuti Tutorial Web Guard Tingkat Dasar terlebih dahulu!
 :::
 
-Kita akan belajar menyisipkan atribut tambahan seperti `role_active` dan `role_active_permission` di objek pengguna IMISSU dan mengubah nilai dari `role_active` dengan `session`.
+Kita akan belajar menyisipkan atribut tambahan seperti `roles`, `role` di objek pengguna IMISSU. Lalu, kita akan mengubah nilai dari atribut `role` dengan perintah `session`.
 
 1. Jalankan perintah di bawah ini.
 ```bash
@@ -133,99 +133,100 @@ use RistekUSDI\SSO\Laravel\Models\Web\User as Model;
 
 class User extends Model
 {
-    protected $appends = ['role_active', 'role_active_permissions'];
+    protected $appends = ['roles', 'role'];
 
-    public function setRoleActiveAttribute($value)
+    public function getRolesAttribute()
     {
-        if (session()->has('role_active')) {
-            $this->attributes['role_active'] = session()->get('role_active');
+        if (session()->has('roles')) {
+            return $this->attributes['roles'] = session()->get('roles');
         } else {
-            session()->put('role_active', $value);
-            session()->save();
-            $this->attributes['role_active'] = $value;
-        }
-    }
-
-    public function getRoleActiveAttribute()
-    {
-        if (session()->has('role_active')) {
-            return $this->attributes['role_active'] = session()->get('role_active');
-        } else {
-            return $this->attributes['role_active'] = $this->getAttribute('client_roles')['0'];
-        }
-    }
-
-    public function getRoleActivePermissionsAttribute()
-    {
-        $role_active = $this->getAttribute('client_roles')['0'];
-        if (session()->has('role_active')) {
-            $role_active = session()->get('role_active');
-        }
-
-        $permissions = [
-            'Admin' => [
-                'disable-user',
-                'manage-roles',
-                'impersonate'
-            ],
-            'Developer' => [
-                'manage-settings',
-                'manage-users',
-                'manage-roles',
-                'impersonate'
-            ],
-        ];
-
-        $selected_permissions = [];
-        foreach ($permissions as $key => $value) {
-            if ($key == $role_active) {
-                $selected_permissions = $permissions[$key];
+            $client_roles = $this->getAttribute('client_roles');
+            $permissions = [
+                'Admin USDI' => [
+                    'user:view',
+                    'user:edit',
+                    'user:delete'
+                ],
+                'Developer USDI' => [
+                    'user:view',
+                    'user:create',
+                    'user:edit',
+                    'user:delete'
+                ],
+                'Pegawai' => [
+                    'profile:view',
+                    'profile:edit'
+                ],
+            ];
+            
+            $roles = [];
+            foreach ($client_roles as $client_role) {
+                array_push($roles, ['name' => $client_role]);
             }
-        }
 
-        return $this->attributes['role_active_permissions'] = $selected_permissions;
+            foreach ($roles as $key => $role) {
+                foreach ($permissions as $_key => $perm) {
+                    if ($role['name'] === $_key) {
+                        $roles[$key]['permissions'] = $permissions[$_key];
+                    }
+                }
+            }
+
+            $roles = json_decode(json_encode($roles));
+            session()->put('roles', $roles);
+            return $this->attributes['roles'] = session()->get('roles');
+        }
+    }
+
+    public function getRoleAttribute()
+    {
+        if (session()->has('role')) {
+            return $this->attributes['role'] = session()->get('role');
+        } else {
+            return $this->attributes['role'] = $this->getAttribute('roles')['0'];
+        }
     }
 }
 ```
 
-4. Refresh halaman "Advance" maka nilai `role_active` dan `role_active_permissions` sudah berubah seperti gambar di bawah.
+4. Refresh halaman "Advance" maka nilai dari field `Peran Aktif` sudah berubah seperti gambar di bawah.
 
 ![Image of SSO web demo advance fix part 1](/img/sso-web-demo-advance-1.png)
 
-5. Kita akan mengubah session `role_active`. Tambahkan kode berikut di dalam group middleware `imissu-web` di file `routes/sso-web-demo.php`.
+5. Kita akan mengubah session `role`. Tambahkan kode berikut di dalam group middleware `imissu-web` di file `routes/sso-web-demo.php`.
 
 ```php
 Route::middleware(['imissu-web'])->group(function () {
     //...
 
     // Laravel 6 - 7
-    Route::post('/sso-web-demo/change-role-active', 'App\Http\Controllers\SSO\Web\DemoController@changeRoleActive');
+    Route::post('/sso-web-demo/change-current-role', 'App\Http\Controllers\SSO\Web\DemoController@changeCurrentRole');
 
-    // Laravel 8 - 9
-    Route::post('/sso-web-demo/change-role-active', [App\Http\Controllers\SSO\Web\DemoController::class, 'changeRoleActive']);
+    // Laravel 8 ke atas
+    Route::post('/sso-web-demo/change-current-role', [App\Http\Controllers\SSO\Web\DemoController::class, 'changeCurrentRole']);
 });
 ```
 
-6. Tambahkan kode berikut di `resources/views/sso-web/advance.blade.php`.
+6. Tambahkan kode berikut di `resources/views/sso-web/advance.blade.php` sebelum tag `</body>`.
 
 ```html
-<input type="hidden" name="url_change_role_active" value="{{ url('/sso-web-demo/change-role-active') }}">
+<input type="hidden" name="url_change_current_role" value="{{ url('/sso-web-demo/change-current-role') }}">
 
 <script>
-    document.getElementById('roles-combo').onchange = function (e) {
+    document.getElementById('roles').onchange = function (e) {
         const value = e.target.value;
-        const url = document.querySelector('input[name="url_change_role_active"]').value;
+        const url = document.querySelector('input[name="url_change_current_role"]').value;
         const current_url = document.querySelector('input[name="current_url"]').value;
         const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         if (value != '0') {
             fetch(url, {
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': token
                 },
                 method: 'POST',
                 credentials: 'same-origin',
-                body: `role_active=${value}`
+                body: JSON.stringify({ role: value })
             })
             .then(response => response.json())
             .then(data => {
@@ -244,10 +245,11 @@ Route::middleware(['imissu-web'])->group(function () {
 
 ```php{4}
 // ..
-public function changeRoleActive(Request $request)
+public function changeCurrentRole(Request $request)
 {   
-    auth('imissu-web')->user()->changeRoleActive($request->role_active);
-    if (auth('imissu-web')->user()->role_active === $request->role_active) {
+    $role = json_decode($request->role);
+    auth('imissu-web')->user()->changeCurrentRole($role);
+    if (auth('imissu-web')->user()->role === $role) {
         return response()->json([
             'message' => 'Berhasil mengubah peran aktif',
             'code' => 200
@@ -265,48 +267,29 @@ public function changeRoleActive(Request $request)
 
 ```php{2}
 // ...
-public function changeRoleActive($role_active)
+public function changeCurrentRole($role)
 {
-    session()->forget('role_active');
-    session()->save();
-    session()->put('role_active', $role_active);
-    session()->save();
+    session()->forget('role');
+    session()->put('role', $role);
 }
 ```
 
-9. Di halaman "Advance" ubah peran Admin menjadi Developer dan hasilnya seperti gambar di bawah.
+9. Di halaman "Advance" ubah peran Pegawai menjadi Developer dan hasilnya seperti gambar di bawah.
 
 ![Image of SSO web demo advance fix part 2](/img/sso-web-demo-advance-2.png)
 
 Kita telah menambahkan atribut tambahan dari session aplikasi. Bagaimana cara menghapusnya saat pengguna keluar aplikasi? Jika Anda sudah mengikuti langkah 5 sampai 8 mungkin Anda sudah menemukan caranya. Jika belum, kita lanjutkan tutorial ini.
 
-11. Sisipkan baris perintah berikut di method `logout()` di baris pertama di `app/Http/Controllers/SSO/Web/AuthController.php`.
+10. Sisipkan baris perintah `session()->flush()` untuk menghapus semua session di method `logout()` di `app/Http/Controllers/SSO/Web/AuthController.php`.
 
 ```php{3}
 public function logout()
 {
-    auth('imissu-web')->user()->forgetSession();
+    session()->flush();
     $url = IMISSUWeb::getLogoutUrl();
     return redirect($url);
 }
 ```
-
-Di baris ke-3 yang disoroti tersebut kita menyisipkan perintah `forgetSession()`.
-
-12. Tambahkan kode berikut di `app/Models/SSO/Web/User.php`
-
-```php{2}
-// ...
-public function forgetSession()
-{
-    session()->forget(['role_active', 'role_active_permissions']);
-    session()->save();
-}
-```
-
-::: warning PERINGATAN
-Jika kita menggunakan perintah `session()->flush()` maka akan menghapus session `access_token` dan `refresh_token` SSO. Sehingga, kita gunakan `session()->forget()` sebagai penggantinya.
-:::
 
 Klik tautan "Log out" dan session aplikasi terhapus saat pengguna keluar dari aplikasi.
 
@@ -314,17 +297,13 @@ Tutorial selesai. :tada:
 
 ::: tip RANGKUMAN
 Pada tutorial Web Guard tingkat lanjut ini kita telah belajar cara:
-- Menerapkan Accessor dan Mutator untuk atribut tambahan seperti `role_active` dan `role_active_permissions` di User model.
-- Mengubah `role_active` dari langkah 5 sampai 8.
+- Menerapkan Accessor dan Mutator untuk atribut tambahan seperti `roles` dan `role` di User model.
+- Mengubah `role` dari langkah 5 sampai 8.
 :::
 
 ## Tutorial Web Guard - Refactoring
 
-Refactoring adalah proses mengubah struktur kode program tanpa mengubah atau menambah fungsi program yang sudah ada. Manfaat dari proses refactoring antara lain memudahkan kode program dibaca dan dipahami oleh programmer lain.
-
-Pada tutorial Web Guard tingkat lanjut kita sudah menyisipkan atribut tambahan seperti `role_active` dan `role_active_permissions` dari session aplikasi, mengubah session `role_active`, dan menghapus session aplikasi. Setiap sistem pasti memiliki kebutuhan atribut-atribut tambahan yang beragam dan pasti akan membuat baris kode dalam suatu file akan panjang sehingga sulit dibaca oleh programmer.
-
-Disinilah peran penting dari Refactoring! Kita akan memulai proses refactoring.
+Pada tutorial Web Guard tingkat lanjut kita sudah menyisipkan atribut tambahan seperti `roles`, `roles` dari session aplikasi, mengubah session `role`, dan menghapus session aplikasi. Setiap sistem pasti memiliki kebutuhan atribut-atribut tambahan yang beragam dan pasti akan membuat baris kode dalam suatu file akan panjang sehingga sulit dibaca oleh programmer. Maka dari itu dibutuhkan proses refactoring. Refactoring adalah proses mengubah struktur kode program tanpa mengubah perilaku dari kode program. Salah satu manfaat dari proses refactoring adalah memudahkan kode program dibaca dan dipahami oleh programmer lain saat berkolaborasi membuat program perangkat lunak.
 
 1. Jalankan perintah di bawah ini.
 
@@ -351,56 +330,18 @@ require __DIR__.'/web-session.php';
 ```diff
 // routes/sso-web-demo.php
 // Laravel 6 - 7
-- Route::post('/sso-web-demo/change-role-active', 'App\Http\Controllers\SSO\Web\DemoController@changeRoleActive']);
-// Laravel 8 - 9
-- Route::post('/sso-web-demo/change-role-active', [App\Http\Controllers\SSO\Web\DemoController::class, 'changeRoleActive']);
+- Route::post('/sso-web-demo/change-current-role', 'App\Http\Controllers\SSO\Web\DemoController@changeCurrentRole']);
+// Laravel 8 ke atas
+- Route::post('/sso-web-demo/change-current-role', [App\Http\Controllers\SSO\Web\DemoController::class, 'changeCurrentRole']);
 
 // routes/web-session.php
 // Laravel 6 - 7
-+ Route::post('/web-session/change-role-active', 'App\Http\Controllers\SSO\Web\SessionController@changeRoleActive');
-// Laravel 8 - 9
-+ Route::post('/web-session/change-role-active', [App\Http\Controllers\SSO\Web\SessionController::class, 'changeRoleActive']);
++ Route::post('/web-session/change-current-role', 'App\Http\Controllers\SSO\Web\SessionController@changeCurrentRole');
+// Laravel 8 ke atas
++ Route::post('/web-session/change-current-role', [App\Http\Controllers\SSO\Web\SessionController::class, 'changeCurrentRole']);
 ```
 
-4. Hapus baris kode di bawah ini pada file `app/Http/Controllers/SSO/Web/DemoController.php`.
-
-```diff
-- public function changeRoleActive(Request $request)
-- {   
--    auth('imissu-web')->user()->changeRoleActive($request->role_active);
--    if (auth('imissu-web')->user()->role_active === $request->role_active) {
--        return response()->json([
--            'message' => 'Berhasil mengubah peran aktif',
--            'code' => 200
--        ], 200);
--    } else {
--        return response()->json([
--            'message' => 'Gagal mengubah peran aktif',
--            'code' => 403
--        ], 403);
--    }
-- }
-```
-
-5. Tambahkan baris kode di bawah ini pada file `app/Http/Controllers/SSO/Web/SessionController.php`.
-
-```diff
-+ public function changeRoleActive(Request $request)
-+ {   
-+    auth('imissu-web')->user()->changeRoleActive($request->role_active);
-+    if (auth('imissu-web')->user()->role_active === $request->role_active) {
-+        return response()->json([
-+            'message' => 'Berhasil mengubah peran aktif',
-+            'code' => 200
-+        ], 200);
-+    } else {
-+        return response()->json([
-+            'message' => 'Gagal mengubah peran aktif',
-+            'code' => 403
-+        ], 403);
-+    }
-+ }
-```
+4. Pindahkan method `changeCurrentRole()` dari file `app/Http/Controllers/SSO/Web/DemoController.php` ke file `app/Http/Controllers/SSO/Web/SessionController.php`.
 
 6. Daftarkan provider `WebSession` dan class `WebSession` di `config/app.php`.
 
@@ -432,31 +373,21 @@ use RistekUSDI\SSO\Laravel\Models\Web\User as Model;
 
 class User extends Model
 {
-    protected $appends = ['role_active', 'role_active_permissions'];
+    protected $appends = ['roles', 'role'];
 
-    public function setRoleActiveAttribute($value)
+    public function getRolesAttribute()
     {
-        $this->attributes['role_active'] = WebSession::setRoleActive($value);
+        return $this->attributes['roles'] = WebSession::getRoles($this->getAttribute('client_roles'));
     }
 
-    public function getRoleActiveAttribute()
+    public function getRoleAttribute()
     {
-        return $this->attributes['role_active'] = WebSession::getRoleActive($this->getAttribute('client_roles')['0']);
+        return $this->attributes['role'] = WebSession::getRole($this->getAttribute('roles')['0']);
     }
 
-    public function getRoleActivePermissionsAttribute()
+    public function changeCurrentRole($role)
     {
-        return $this->attributes['role_active_permissions'] = WebSession::getRoleActivePermissions($this->getAttribute('client_roles')['0']);
-    }
-
-    public function changeRoleActive($role_active)
-    {
-        WebSession::changeRoleActive($role_active);
-    }
-
-    public function forgetSession()
-    {
-        WebSession::forgetSession();
+        WebSession::changeCurrentRole($role);
     }
 }
 ```
@@ -470,69 +401,60 @@ namespace App\Services;
 
 class WebSession
 {
-    public function setRoleActive($value)
+    public function getRoles($client_roles)
     {
-        if (session()->has('role_active')) {
-            return session()->get('role_active');
+        if (session()->has('roles')) {
+            return session()->get('roles');
         } else {
-            session()->put('role_active', $value);
-            session()->save();
-            return $value;
-        }
+            $permissions = [
+                'Super Admin' => [
+                    'user:view',
+                    'user:create',
+                    'user:edit',
+                    'user:delete'
+                ],
+                'Admin' => [
+                    'user:view',
+                    'user:edit',
+                ],
+                'Pegawai' => [
+                    'profile:view',
+                    'profile:edit'
+                ],
+            ];
+
+            $roles = [];
+            foreach ($client_roles as $client_role) {
+                array_push($roles, ['name' => $client_role]);
+            }
+
+            foreach ($roles as $key => $role) {
+                foreach ($permissions as $_key => $perm) {
+                    if ($role['name'] === $_key) {
+                        $roles[$key]['permissions'] = $permissions[$_key];
+                    }
+                }
+            }
+
+            $roles = json_decode(json_encode($roles));
+            session()->put('roles', $roles);
+            return session()->get('roles');
+        }   
     }
 
-    public function getRoleActive($role)
+    public function getRole($role)
     {
-        if (session()->has('role_active')) {
-            return session()->get('role_active');
+        if (session()->has('role')) {
+            return session()->get('role');
         } else {
             return $role;
         }
     }
 
-    public function getRoleActivePermissions($role)
+    public function changeCurrentRole($role)
     {
-        $role_active = $role;
-        if (session()->has('role_active')) {
-            $role_active = session()->get('role_active');
-        }
-
-        $permissions = [
-            'Admin' => [
-                'disable-user',
-                'manage-roles',
-                'impersonate'
-            ],
-            'Developer' => [
-                'manage-settings',
-                'manage-users',
-                'manage-roles',
-                'impersonate'
-            ],
-        ];
-
-        $selected_permissions = [];
-        foreach ($permissions as $key => $value) {
-            if ($key == $role_active) {
-                $selected_permissions = $permissions[$key];
-            }
-        }
-
-        return $selected_permissions;
-    }
-
-    public function changeRoleActive($role_active)
-    {
-        session()->forget('role_active');
-        session()->save();
-        session()->put('role_active', $role_active);
-        session()->save();
-    }
-
-    public function forgetSession()
-    {
-        session()->forget(['role_active', 'role_active_permissions']);
-        session()->save();
+        session()->forget('role');
+        session()->put('role', $role);
     }
 }
 ```
@@ -540,8 +462,8 @@ class WebSession
 7. Ganti baris kode di `resources/views/sso-web/advance.blade.php`.
 
 ```diff
-- <input type="hidden" name="url_change_role_active" value="{{ url('/sso-web-demo/change-role-active') }}">
-+ <input type="hidden" name="url_change_role_active" value="{{ url('/web-session/change-role-active') }}">
+- <input type="hidden" name="url_change_current_role" value="{{ url('/sso-web-demo/change-current-role') }}">
++ <input type="hidden" name="url_change_current_role" value="{{ url('/web-session/change-current-role') }}">
 ```
 
 8. Cek ulang apakah halaman "Advance" masih tetap berjalan sebelum direfactoring. Jika berhasil maka proses refactoring sudah berhasil. Jika gagal silakan cek kembali langkah-langkah di atas.
@@ -554,8 +476,9 @@ Berikut perintah-perintah yang digunakan untuk mengakses data pengguna SSO.
 # Attributes
 
 // sub adalah id user di Keycloak.
-// TIDAK DIREKOMENDASIKAN menggunakan atribut ini utk menyimpan nilai.
+// Atribut TIDAK DIREKOMENDASIKAN untuk menyimpan id unik pengguna.
 auth('imissu-web')->user()->sub;
+
 auth('imissu-web')->user()->preferred_username;
 auth('imissu-web')->user()->name;
 auth('imissu-web')->user()->email;
@@ -564,10 +487,11 @@ auth('imissu-web')->user()->email;
 auth('imissu-web')->user()->client_roles;
 
 // id user di Unud.
+// Atribut ini DIREKOMENDASIKAN untuk menyimpan id unik pengguna.
 auth('imissu-web')->user()->unud_identifier_id;
 
 // id sso Unud.
-// DIREKOMENDASIKAN untuk menggunakan atribut ini untuk menyimpan nilai.
+// Atribut ini DIREKOMENDASIKAN untuk menyimpan id unik pengguna.
 auth('imissu-web')->user()->unud_sso_id;
 
 // id tipe pengguna di Unud.
@@ -589,11 +513,12 @@ auth('imissu-web')->user()->full_identity;
 // Nilai `$roles` bertipe string atau array.
 auth('imissu-web')->user()->hasRole($roles);
 
-// Mengecek apakah pengguna sedang dalam peran aktif tertentu.
-auth('imissu-web')->user()->hasRoleActive($roles);
+// Mengecek apakah pengguna memiliki peran tertentu.
+// Nilai input bertipe string atau array
+auth('imissu-web')->user()->hasRole($role);
 
-// Mengecek apakah pengguna memiliki permissions yang melekat pada peran aktif pengguna.
-// Nilai `$permissions` bertipe string atau array.
+// Mengecek apakah pengguna memiliki permission tertentu.
+// Nilai input bertipe string atau array.
 auth('imissu-web')->user()->hasPermission($permissions);
 
 # Utility
@@ -614,16 +539,14 @@ Berikut daftar web middleware yang disediakan oleh SSO Laravel.
 // Jika belum terotentikasi maka diarahkan ke halaman login.
 middleware('imissu-web');
 
-// Middleware untuk mengecek apakah pengguna memiliki peran Admin dan atau Developer
-// Jika peran yang ingin dicek lebih dari satu maka gunakan tanda "|"
-Route::middleware('imissu-web.role:Admin|Developer');
+// Middleware untuk mengecek apakah pengguna memiliki peran Admin
+// Jika peran lebih dari satu maka gunakan tanda "|"
+Route::middleware('imissu-web.role:Admin');
+Route::middleware('imissu-web.role:Admin|Super Admin');
 
-// Middleware untuk mengecek apakah pengguna memiliki peran aktif sebagai Admin atau Developer
-// Jika peran aktif yang ingin dicek lebih dari satu maka gunakan tanda "|"
-Route::middleware('imissu-web.role_active:Admin|Developer');
-
-// Middleware untuk mengecek apakah pengguna memiliki permission user.create dan atau user.view
-// Jika permission yang ingin dicek lebih dari satu maka gunakan tanda "|"
+// Middleware untuk mengecek apakah pengguna memiliki permission user.create
+// Jika permission lebih dari satu maka gunakan tanda "|"
+Route::middleware('imissu-web.permission:user.create');
 Route::middleware('imissu-web.permission:user.create|user.view');
 ```
 
