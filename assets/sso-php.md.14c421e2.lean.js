@@ -1,1 +1,0 @@
-import{_ as s,o as a,c as n,Q as l}from"./chunks/framework.cc795e4d.js";const g=JSON.parse('{"title":"SSO PHP","description":"","frontmatter":{},"headers":[],"relativePath":"sso-php.md","filePath":"sso-php.md"}'),p={name:"sso-php.md"},o=l("",49),e=[o];function t(c,r,y,i,E,d){return a(),n("div",null,e)}const F=s(p,[["render",t]]);export{g as __pageData,F as default};
