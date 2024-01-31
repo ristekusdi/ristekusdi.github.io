@@ -70,7 +70,7 @@ $route['sso/login'] = 'webauth/login';
 $route['sso/logout'] = 'webauth/logout';
 $route['sso/callback'] = 'webauth/callback';
 /** Mengganti session */
-$route['web-session/change_current_role'] = 'webauth/change_current_role';
+$route['web-session/change_role'] = 'webauth/change_role';
 $route['web-session/change_kv'] = 'webauth/change_kv';
 ```
 
