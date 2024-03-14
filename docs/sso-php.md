@@ -69,6 +69,8 @@ File-file SSO yang disalin antara lain:
 $route['sso/login'] = 'webauth/login';
 $route['sso/logout'] = 'webauth/logout';
 $route['sso/callback'] = 'webauth/callback';
+/** Impersonate */
+$route['sso/impersonate'] = 'webauth/impersonate';
 /** Mengganti session */
 $route['web-session/change-role'] = 'webauth/changeRole';
 $route['web-session/change-kv'] = 'webauth/changeKeyValue';
