@@ -69,9 +69,11 @@ File-file SSO yang disalin antara lain:
 $route['sso/login'] = 'webauth/login';
 $route['sso/logout'] = 'webauth/logout';
 $route['sso/callback'] = 'webauth/callback';
+/** Impersonate */
+$route['sso/impersonate'] = 'webauth/impersonate';
 /** Mengganti session */
-$route['web-session/change_role'] = 'webauth/change_role';
-$route['web-session/change_kv'] = 'webauth/change_kv';
+$route['web-session/change-role'] = 'webauth/changeRole';
+$route['web-session/change-kv'] = 'webauth/changeKeyValue';
 ```
 
 3. Tambahkan `webguard` sebagai autoload library di direktori `application/config/autoload.php`
@@ -147,6 +149,12 @@ Berikut perintah-perintah yang digunakan untuk mengakses data pengguna SSO.
 // Atribut ini DIREKOMENDASIKAN untuk menyimpan id unik pengguna.
 (new WebGuard())->user->unud_identifier_id;
 
+// NIP/NIM
+(new WebGuard())->user->given_name;
+
+// Nama Pengguna
+(new WebGuard())->user->family_name;
+
 // NIP/NIM - Nama Pengguna
 (new WebGuard())->user->full_identity;
 (new WebGuard())->user->name;
@@ -189,6 +197,12 @@ $this->webguard->user()->get();
 // sub adalah id user di Keycloak.
 // Atribut ini TIDAK DIREKOMENDASIKAN untuk menyimpan id unik pengguna.
 $this->webguard->user->sub;
+
+// NIP/NIM
+$this->webguard->user->given_name;
+
+// Nama Pengguna
+$this->webguard->user->family_name;
 
 // NIP/NIM - Nama Pengguna
 $this->webguard->user->full_identity;
