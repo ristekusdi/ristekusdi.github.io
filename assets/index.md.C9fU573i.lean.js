@@ -1,1 +1,0 @@
-import{_ as a,c as e,o as t,a1 as s}from"./chunks/framework.biRBrEtS.js";const m=JSON.parse('{"title":"Ristek USDI","description":"","frontmatter":{},"headers":[],"relativePath":"index.md","filePath":"index.md"}'),n={name:"index.md"},i=s("",5),o=[i];function r(l,k,c,d,p,u){return t(),e("div",null,o)}const h=a(n,[["render",r]]);export{m as __pageData,h as default};
