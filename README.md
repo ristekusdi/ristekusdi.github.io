@@ -2,7 +2,7 @@
 
 > Berdikari dan tangguh!
 
-Website dokumentasi pustaka karya RistekUSDI dengan [Vitepress](https://vitepress.vuejs.org/).
+Website dokumentasi pustaka karya RistekUSDI dengan [VitePress](https://vitepress.dev).
 
 ## Cara Menjalankan Dokumentasi di Komputer Lokal
 
