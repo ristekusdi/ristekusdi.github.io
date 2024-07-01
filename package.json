@@ -1,7 +1,7 @@
 {
   "name": "ristekusdi.github.io",
   "version": "1.0.0",
-  "description": "Dokumentasi pustaka karya Ristek USDI",
+  "description": "Dokumentasi Riset dan Teknologi Unit Sumber Daya Informasi",
   "main": "index.js",
   "directories": {
     "doc": "docs"
@@ -13,16 +13,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ristekusdi/sso-docs.git"
+    "url": "git+https://github.com/ristekusdi/ristekusdi.github.io.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ristekusdi/sso-docs/issues"
+    "url": "https://github.com/ristekusdi/ristekusdi.github.io/issues"
   },
-  "homepage": "https://github.com/ristekusdi/sso-docs#readme",
+  "homepage": "https://github.com/ristekusdi/ristekusdi.github.io#readme",
   "devDependencies": {
-    "vitepress": "^1.0.0-alpha.4",
-    "vue": "^3.2.37"
+    "vitepress": "^1.2.3",
+    "vue": "^3.4.31"
   }
 }
