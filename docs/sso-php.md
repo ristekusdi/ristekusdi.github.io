@@ -23,39 +23,39 @@ Setelah diinstal, silakan ambil nilai environment SSO di website IMISSU2 dev ata
 1. Nilai dari `KEYCLOAK_CALLBACK` disesuaikan.
 2. Nilai dari `KEYCLOAK_REDIRECT_URL` adalah path dari halaman utama aplikasi Anda terlepas diproteksi oleh SSO atau tidak.
 
-## Pengaturan
+## Konfigurasi
 
-Pengaturan dibagi menjadi dua bagian yakni [PHP](#php) dan [CodeIgniter 3.x](#codeigniter-3-x).
+Konfigurasi dibagi menjadi dua bagian yakni [PHP](#php) dan [CodeIgniter 3.x](#codeigniter-3-x).
 
 ### PHP
 
-Jalankan perintah berikut untuk menyalin file SSO yang ada di `ristekusdi/sso-php`.
+Jalankan perintah di bawah ini untuk menyalin file konfigurasi SSO yang ada di `ristekusdi/sso-php` ke dalam folder `sso` di direktori utama proyek Anda.
 
-```
-./vendor/bin/sso copy:file --type=php
-```
+::: code-group
 
-Atau bila Anda menggunakan terminal bawaan Laragon (CMDER) gunakan perintah di bawah.
-
-```
+```bash [Laragon CMDER]
 .\vendor\bin\sso copy:file --type=php
 ```
 
-File SSO yang disalin akan ditaruh di dalam folder `sso` di direktori root proyek Anda.
+```bash [Command Line]
+./vendor/bin/sso copy:file --type=php
+```
+
+:::
 
 ### CodeIgniter 3.x
 
-1. Jalankan perintah berikut untuk menyalin file SSO yang ada di `ristekusdi/sso-php`.
+1. Jalankan perintah berikut untuk menyalin file konfigurasi SSO yang ada di `ristekusdi/sso-php`.
 
-```
-./vendor/bin/sso copy:file --type=ci3
-```
-
-Atau bila Anda menggunakan terminal bawaan Laragon (CMDER) gunakan perintah di bawah.
-
-```
+::: code-group
+```bash [Laragon CMDER]
 .\vendor\bin\sso copy:file --type=ci3
 ```
+
+```bash [Command Line]
+./vendor/bin/sso copy:file --type=ci3
+```
+:::
 
 File-file SSO yang disalin antara lain:
 
@@ -93,10 +93,10 @@ $config['base_url'] = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") ?
 $config['base_url'] .= "://".$_SERVER['HTTP_HOST'];
 $config['base_url'] .= str_replace(basename($_SERVER['SCRIPT_NAME']),"",$_SERVER['SCRIPT_NAME']);
 
-// Ubah lokasi autoload composer di direktori `vendor` pada root project.
+// Mengarahkan lokasi Composer autoload ke direktori `vendor` pada root project.
 $config['composer_autoload'] = "./vendor/autoload.php";
 
-// Aktifkan hooks pada file `application/config/hooks.php`.
+// Mengaktifkan hooks pada file `application/config/hooks.php` untuk mendeteksi `.env` file.
 $config['enable_hooks'] = TRUE;
 ```
 
@@ -111,7 +111,7 @@ $hook['pre_system'] = function () {
 
 6. Agar halaman tertentu di dalam suatu proyek dilindungi oleh autentikasi, tambahkan perintah `$this->webguard->authenticated()` ke dalam `constructor` di suatu controller. Sehingga jika pengguna mengakses halaman tertentu belum terautentikasi maka di arahkan ke halaman login SSO.
 
-## Daftar Perintah Auth
+## Referensi Perintah Auth
 
 Daftar perintah auth terbagi menjadi dua bagian yakni [PHP](#auth-php) dan [CodeIgniter 3.x](#auth-codeigniter-3-x).
 
@@ -243,6 +243,14 @@ $this->webguard->user->hasPermission($permission);
 
 ##### Bagaimana cara mendapatkan access token dan refresh token?
 
-Impor class `SSOService` dengan perintah `use RistekUSDI\SSO\PHP\Services\SSOService;`.
+Untuk mendapatkan access token dan refresh token, kita harus mengimpor class `SSOService` dan menggunakan perintah
+`(new SSOService())->retrieveToken()`.
 
-Gunakan perintah `(new SSOService())->retrieveToken()` untuk mendapatkan access token dan refresh token.
+```php
+<?php
+use RistekuSDI\SSO\PHP\Services\SSOService;
+
+$token = (new SSOService())->retrieveToken();
+$access_token = $token['access_token'];
+$refresh_token = $token['refresh_token'];
+```

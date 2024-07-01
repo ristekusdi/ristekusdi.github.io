@@ -53,15 +53,17 @@ Perintah di atas akan menghasilkan file-file di bawah ini.
 ],
 ```
 
-4. Impor route `sso-web` dengan perintah berikut.
+4. Daftarkan route `sso-web` dengan perintah di bawah ini.
 
-```bash
-// Laravel 6 - 7
-php artisan vendor:publish --tag=sso-laravel-web-route-v1
-
-// Laravel 8 ke atas
+::: code-group
+```bash [Laravel 8+]
 php artisan vendor:publish --tag=sso-laravel-web-route-v2
 ```
+
+```bash [Laravel 6 - 7]
+php artisan vendor:publish --tag=sso-laravel-web-route-v1
+```
+:::
 
 Perintah di atas akan menghasilkan file `sso-web.php` di folder `routes`. Isi dari file berupa route dengan method `login`, `callback`, `logout`.
 
@@ -142,12 +144,12 @@ class User extends Model
         } else {
             $client_roles = $this->getAttribute('client_roles');
             $permissions = [
-                'Admin USDI' => [
+                'Admin' => [
                     'user:view',
                     'user:edit',
                     'user:delete'
                 ],
-                'Developer USDI' => [
+                'Super Admin' => [
                     'user:view',
                     'user:create',
                     'user:edit',
@@ -202,19 +204,25 @@ class User extends Model
 
 5. Kita akan mengubah session `role`. Tambahkan kode berikut di dalam group middleware `imissu-web` di file `routes/sso-web-demo.php`.
 
-```php
+::: code-group
+
+```php [Laravel 8+]
 Route::middleware(['imissu-web'])->group(function () {
     //...
-
-    // Laravel 6 - 7
-    Route::post('/sso-web-demo/change-role', 'App\Http\Controllers\SSO\Web\DemoController@changeRole');
-
-    // Laravel 8 ke atas
     Route::post('/sso-web-demo/change-role', [App\Http\Controllers\SSO\Web\DemoController::class, 'changeRole']);
 });
 ```
 
-6. Tambahkan kode berikut di `resources/views/sso-web/advance.blade.php` sebelum tag `</body>`.
+```php [Laravel 6 - 7]
+Route::middleware(['imissu-web'])->group(function () {
+    //...
+    Route::post('/sso-web-demo/change-role', 'App\Http\Controllers\SSO\Web\DemoController@changeRole');
+});
+```
+
+:::
+
+6. Tambahkan kode untuk mengubah peran di `resources/views/sso-web/advance.blade.php` sebelum tag `</body>`.
 
 ```html
 <input type="hidden" name="url_change_role" value="{{ url('/sso-web-demo/change-role') }}">
@@ -260,7 +268,7 @@ Route::middleware(['imissu-web'])->group(function () {
 </script>
 ```
 
-7. Tambahkan kode berikut di `app/Http/Controllers/Web/DemoController.php`.
+7. Tambahkan method `changeRole()` di `app/Http/Controllers/Web/DemoController.php`.
 
 ```php{4}
 // ..
@@ -326,19 +334,18 @@ require __DIR__.'/web-session.php';
 
 3. Hapus baris kode di file `routes/sso-web-demo.php` dan tambahkan baris kode di file `routes/web-session.php`.
 
-```diff
-// routes/sso-web-demo.php
-// Laravel 6 - 7
-- Route::post('/sso-web-demo/change-role', 'App\Http\Controllers\SSO\Web\DemoController@changeRole']);
-// Laravel 8 ke atas
-- Route::post('/sso-web-demo/change-role', [App\Http\Controllers\SSO\Web\DemoController::class, 'changeRole']);
+::: code-group
 
-// routes/web-session.php
-// Laravel 6 - 7
-+ Route::post('/web-session/change-role', 'App\Http\Controllers\SSO\Web\SessionController@changeRole');
-// Laravel 8 ke atas
+```diff [Laravel 8+]
+- Route::post('/sso-web-demo/change-role', [App\Http\Controllers\SSO\Web\DemoController::class, 'changeRole']);
 + Route::post('/web-session/change-role', [App\Http\Controllers\SSO\Web\SessionController::class, 'changeRole']);
 ```
+
+```diff [Laravel 6 - 7]
+- Route::post('/sso-web-demo/change-role', 'App\Http\Controllers\SSO\Web\DemoController@changeRole']);
++ Route::post('/web-session/change-role', 'App\Http\Controllers\SSO\Web\SessionController@changeRole');
+```
+:::
 
 4. Pindahkan method `changeRole()` dari file `app/Http/Controllers/SSO/Web/DemoController.php` ke file `app/Http/Controllers/SSO/Web/SessionController.php`.
 
@@ -459,7 +466,7 @@ class WebSession
 }
 ```
 
-7. Ganti baris kode di `resources/views/sso-web/advance.blade.php`.
+7. Ganti value dari `url_change_role` di file `resources/views/sso-web/advance.blade.php`.
 
 ```diff
 - <input type="hidden" name="url_change_role" value="{{ url('/sso-web-demo/change-role') }}">
@@ -554,8 +561,25 @@ Route::middleware('imissu-web.permission:user.create|user.view');
 
 ### Bagaimana cara mendapatkan access token dan refresh token?
 
-Ada dua cara untuk mendapatkan access token dan refresh token:
+Terdapat dua cara untuk mendapatkan access token dan refresh token:
 
-1. Mengimpor facade `IMISSUWeb` dengan perintah `use RistekUSDI\SSO\Laravel\Facades\IMISSUWeb;`, kemudian jalankan perintah `IMISSUWeb::retrieveToken()`.
+1. Menggunakan facade `IMISSUWeb` dari package `ristekusdi/sso-laravel`.
 
-2. Menggunakan session. Gunakan perintah `session()->get('_sso_token.access_token')` untuk mendapatkan access token dan `session()->get('_sso_token.refresh_token')`.
+```php
+<?php
+
+use RistekUSDI\SSO\Laravel\Facades\IMISSUWeb;
+
+$token = IMISSUWeb::retrieveToken();
+$access_token = $token['access_token'];
+$refresh_token = $token['refresh_token'];
+```
+
+2. Menggunakan fitur Session dari Laravel.
+
+```php
+<?php
+
+$access_token = session()->get('_sso_token.access_token');
+$refresh_token = session()->get('_sso_token.refresh_token');
+```
