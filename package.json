@@ -1,7 +1,7 @@
 {
   "name": "ristekusdi.github.io",
   "version": "1.0.0",
-  "description": "Dokumentasi Riset dan Teknologi Unit Sumber Daya Informasi",
+  "description": "Dokumentasi Riset Teknologi Unit Sumber Daya Informasi",
   "main": "index.js",
   "directories": {
     "doc": "docs"

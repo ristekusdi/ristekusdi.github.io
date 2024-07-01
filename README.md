@@ -2,9 +2,9 @@
 
 > Berdikari dan tangguh!
 
-Website dokumentasi pustaka karya RistekUSDI dengan [VitePress](https://vitepress.dev).
+Website dokumentasi Riset Teknologi Unit Sumber Daya Informasi menggunakan [VitePress](https://vitepress.dev).
 
-## Cara Menjalankan Dokumentasi di Komputer Lokal
+## Cara Menjalankan
 
 > Syarat: Gunakan versi NodeJS minimal 16.14.2. Silakan gunakan [Volta](https://volta.sh/) untuk manajemen NodeJS yang lebih baik.
 
