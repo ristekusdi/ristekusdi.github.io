@@ -1,6 +1,6 @@
 # SSO PHP
 
-Petunjuk penggunaan pustaka SSO PHP Universitas Udayana.
+Petunjuk penggunaan pustaka SSO (Single Sign-On) PHP Universitas Udayana.
 
 ## Prasyarat
 

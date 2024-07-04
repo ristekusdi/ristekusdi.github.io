@@ -1,6 +1,6 @@
 # SSO Laravel
 
-Petunjuk penggunaan pustaka SSO Laravel Universitas Udayana.
+Petunjuk penggunaan pustaka SSO (Single Sign-On) Laravel Universitas Udayana.
 
 ## Prasyarat
 
