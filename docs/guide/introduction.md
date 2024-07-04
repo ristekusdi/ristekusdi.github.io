@@ -1,1 +1,3 @@
 # Pengantar
+
+Ristek USDI (Riset teknologi Unit Sumber Daya Informasi) adalah sebuah organisasi yang dibuat oleh [Kresna Satya](https://github.com/kresnasatya) (programmer USDI) pada tahun 2021. Ide untuk membuat organisasi ini muncul dari [GitHub Ristek CS UI](https://github.com/RistekCSUI) yang ditemukan oleh Kresna beberapa tahun sebelum Ristek USDI dibuat. Ristek USDI dibuat dengan tujuan sebagai sarana untuk programmer-programmer di USDI untuk membuat dan mempublikasikan perkakas-perkakas yang bersifat sumber terbuka (open source tools) di platform GitHub.
