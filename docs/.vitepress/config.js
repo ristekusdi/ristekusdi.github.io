@@ -19,7 +19,8 @@ export default {
         ]
     },
     // deployment
-    base: '/'
+    base: '/',
+    cleanUrls: true
 }
 
 function sidebarGuide() {
