@@ -1,3 +1,8 @@
+---
+title: SSO Laravel
+outline: deep
+---
+
 # SSO Laravel
 
 Petunjuk penggunaan pustaka SSO (Single Sign-On) Laravel Universitas Udayana.
