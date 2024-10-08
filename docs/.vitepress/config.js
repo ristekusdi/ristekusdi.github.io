@@ -43,6 +43,7 @@ function sidebarTools() {
                 { text: 'Pengantar', link: 'introduction' },
                 { text: 'SSO PHP', link: 'sso-php' },
                 { text: 'SSO Laravel', link: 'sso-laravel' },
+                { text: 'Kisara', link: 'kisara-php' },
             ]
         }
     ]
