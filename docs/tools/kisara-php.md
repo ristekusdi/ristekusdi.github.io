@@ -9,11 +9,13 @@ Kisara, sebuah pustaka untuk berinteraksi Keycloak Service Account melalui [Keyc
 
 ## Pengaturan Awal
 
+Instal pustaka ini dengan perintah di bawah ini.
+
 ```bash
 composer require ristekusdi/kisara-php
 ```
 
-In each class, you need to set a config (array value) to get data you need. Here's the available options:
+Berikutnya, buatlah sebuah array bernama `$config`. Array ini menampung data-data yang diperlukan untuk terhubung ke server Keycloak.
 
 ```php
 $config = [
@@ -28,6 +30,18 @@ $config = [
 ::: info
 Admin URL dan base URL bisa sama atau berbeda di mode production.
 :::
+
+## Ouput
+
+Bila setiap perintah di bawah ini disimpan dalam bentuk variable bernama `$response` artinya perintah tersebut mengembalikan dua hasil dalam bentuk satu array antara lain `code` dan `body`. Jika tidak maka perintah tersebut akan mengembalikan hasil data yang diminta oleh programmer.
+
+```php
+// Contoh
+$response = [
+    'code' => 200,
+    'body' => 'Response of request'
+];
+```
 
 ## Daftar Perintah
 
@@ -153,7 +167,7 @@ use RistekUSDI\Kisara\Client as KisaraClient;
 Kisara::connect($config);
 
 // Tanpa parameter
-KisaraClient::userSessions($client_id);
+$user_sessions = KisaraClient::userSessions($client_id);
 
 $params = [
     'first' => '0',
@@ -164,9 +178,7 @@ $params = [
 $user_sessions = KisaraClient::userSessions($client_id, $params);
 ```
 
-### ClientSecret
-
-#### get
+#### getClientSecret
 
 Mendapatkan client secret dari sebuah client menggunakan `id` dari client BUKAN `clientId`.
 
@@ -179,7 +191,7 @@ Kisara::connect($config);
 $client_secret = KisaraClient::getClientSecret($client_id);
 ```
 
-#### update
+#### updateClientSecret
 
 Memperbaharui nilai dari client secret menggunakan `id` dari client BUKAN `clientId`.
 
@@ -337,9 +349,10 @@ $response = KisaraDeviceActivity::endSession($session_id);
 
 #### get
 
-Get groups with or without parameters.
+Mendapatkan daftar kelompok.
 
 ```php
+use RistekUSDI\Kisara\Kisara;
 use RistekUSDI\Kisara\Group as KisaraGroup;
 
 // With parameters.
@@ -349,168 +362,264 @@ $params = [
     'search' => 'name of group',
 ];
 
-(new KisaraGroup($config))->get($params);
+Kisara::connect($config);
 
-// Without parameters.
-(new KisaraGroup($config))->get();
+// Menggunakan parameter
+$groups = KisaraGroup::get($params);
+
+// Tanpa parameter
+$groups = KisaraGroup::get();
 ```
 
 #### findById
 
-Get a single group by id of group.
+Mendapatkan data suatu kelompok dari id kelompok.
 
 ```php
+use RistekUSDI\Kisara\Kisara;
 use RistekUSDI\Kisara\Group as KisaraGroup;
 
-(new KisaraGroup($config))->findById($group_id);
+Kisara::connect($config);
+
+$group = KisaraGroup::findById($group_id);
 ```
 
 #### store
 
-Store a group.
+Menyimpan sebuah kelompok.
 
 ```php
+use RistekUSDI\Kisara\Kisara;
 use RistekUSDI\Kisara\Group as KisaraGroup;
 
-(new KisaraGroup($config))->store(array(
+Kisara::connect($config);
+$response = KisaraGroup::store(array(
     'name' => 'name of group'
 ));
 ```
 
 #### delete
 
-Delete a group by id of group.
+Menghapus sebuah kelompok menggunakan id dari kelompok.
 
 ```php
+use RistekUSDI\Kisara\Kisara;
 use RistekUSDI\Kisara\Group as KisaraGroup;
 
-(new KisaraGroup($config))->delete($group_id);
+Kisara::connect($config);
+$response = KisaraGroup::delete($group_id);
 ```
 
 #### members
 
-Get members of group by id of group. Parameters are optional.
+Mendapatkan daftar anggota yang ada di dalam suatu kelompok.
 
 ```php
+use RistekUSDI\Kisara\Kisara;
 use RistekUSDI\Kisara\Group as KisaraGroup;
 
-// With parameters.
+Kisara::connect($config);
+
+// Menggunakan parameter
 $params = [
     'first' => '0',
     'max' => '10',
 ];
-(new KisaraGroup($config))->members($group_id, $params);
+$members = KisaraGroup::members($group_id, $params);
 
-// Without parameters.
-(new KisaraGroup($config))->members($group_id);
+// Tanpa parameter
+$members = KisaraGroup::members($group_id);
 ```
 
 #### getRoleMappings
 
-Get group role mappings by group id.
+Mendapatkan daftar peran yang melekat di suatu kelompok.
 
 ```php
+use RistekUSDI\Kisara\Kisara;
 use RistekUSDI\Kisara\Group as KisaraGroup;
 
-// Without parameters.
-(new KisaraGroup($config))->getRoleMappings($group_id);
+Kisara::connect($config);
+
+$roles = KisaraGroup::getRoleMappings($group_id);
+```
+
+#### getAvailableRoles
+
+Mendapatkan daftar peran dari suatu client yang belum terhubung ke kelompok.
+
+```php
+use RistekUSDI\Kisara\Kisara;
+use RistekUSDI\Kisara\Group as KisaraGroup;
+
+Kisara::connect($config);
+
+$available_roles = KisaraGroup::getAvailableRoles($group_id, $client_id);
+```
+
+#### assignRole
+
+Menghubungkan peran dari suatu client yang belum terhubung ke kelompok.
+
+```php
+use RistekUSDI\Kisara\Kisara;
+use RistekUSDI\Kisara\Group as KisaraGroup;
+
+Kisara::connect($config);
+
+$available_roles = KisaraGroup::getAvailableRoles($group_id, $client_id);
+
+$roles = $available_roles;
+$response = KisaraGroup::assignRole($group_id, $client_id, $roles);
+```
+
+#### getAssignedRoles
+
+Mendapatkan daftar peran dari suatu client yang sudah terhubung ke kelompok.
+
+```php
+use RistekUSDI\Kisara\Kisara;
+use RistekUSDI\Kisara\Group as KisaraGroup;
+
+Kisara::connect($config);
+
+$assigned_roles = KisaraGroup::getAssignedRoles($group_id, $client_id);
 ```
 
 #### addMember
 
-TBA
+Menambahkan pengguna sebagai anggota dari suatu kelompok.
+
+```php
+use RistekUSDI\Kisara\Kisara;
+use RistekUSDI\Kisara\Group as KisaraGroup;
+
+Kisara::connect($config);
+
+$response = KisaraGroup::addMember($group_id, $user_id);
+```
 
 #### removeMember
+
+Menghapus pengguna sebagai anggota dari suatu kelompok.
+
+```php
+use RistekUSDI\Kisara\Kisara;
+use RistekUSDI\Kisara\Group as KisaraGroup;
+
+Kisara::connect($config);
+
+$response = KisaraGroup::removeMember($group_id, $user_id);
+```
 
 ### Role
 
 #### findById
 
-Find a role by id of role.
+Mendapatkan data peran menggunakan id dari peran.
 
 ```php
+use RistekUSDI\Kisara\Kisara;
 use RistekUSDI\Kisara\Role as KisaraRole;
 
-(new KisaraRole($config))->findById($role_id);
+Kisara::connect($config);
+$role = KisaraRole::findById($role_id);
 ```
 
 #### update
 
-Update a role by id of role.
+Memperbaharui data peran menggunakan id dari peran.
 
 ```php
+use RistekUSDI\Kisara\Kisara;
 use RistekUSDI\Kisara\Role as KisaraRole;
 
 $data = [
     'name' => 'role name'
 ]
 
-(new KisaraRole($config))->update($role_id, $data);
+Kisara::connect($config);
+$response = KisaraRole::update($role_id, $data);
 ```
 
 #### delete
 
-Delete a role by id of role.
+Menghapus data peran menggunakan id dari peran.
 
 ```php
+use RistekUSDI\Kisara\Kisara;
 use RistekUSDI\Kisara\Role as KisaraRole;
 
-(new KisaraRole($config))->delete($role_id);
+Kisara::connect($config);
+$response = KisaraRole::delete($role_id);
 ```
 
 ### Session
 
 #### delete
 
-Delete session logged in user by session id.
+Menghapus sesi pengguna yang telah login menggunakan session id.
 
 ```php
+use RistekUSDI\Kisara\Kisara;
 use RistekUSDI\Kisara\Session as KisaraSession;
 
-(new KisaraSession($config))->delete($session_id);
+Kisara::connect($config);
+$response = KisaraSession::delete($session_id);
 ```
 
 ### User
 
 #### get
 
-Get users with or without parameters.
+Mendapatkan data daftar pengguna.
 
 ```php
+use RistekUSDI\Kisara\Kisara;
 use RistekUSDI\Kisara\User as KisaraUser;
 
-// With parameters
-$params = [
-    // Option 1
+Kisara::connect($config);
+
+// Menggunakan parameter
+// Opsi 1
+$params1 = [
     'username' => 'username',
     'exact' => true,
-
-    // Option 2
+    // Opsi 2
     'email' => 'mail of user',
     'username' => 'username',
 ];
+$users = KisaraUser::get($params1);
 
-(new KisaraUser($config))->get($params);
+// Opsi 2
+$params2 = [
+    'email' => 'mail of user',
+    'username' => 'username',
+];
+$users = KisaraUser::get($params2);
 
-// Without parameters
-(new KisaraUser($config))->get();
+// Tanpa parameters
+$users = (new KisaraUser($config))->get();
 ```
 
 #### findById
 
-Find user by id of user.
+Mendapatkan data pengguna menggunakan id dari pengguna.
 
 ```php
+use RistekUSDI\Kisara\Kisara;
 use RistekUSDI\Kisara\User as KisaraUser;
 
-(new KisaraUser($config))->findById($user_id);
+Kisara::connect($config);
+$user = KisaraUser::findById($user_id);
 ```
 
 #### store
 
-Store a user.
+Menyimpan data pengguna.
 
 ```php
+use RistekUSDI\Kisara\Kisara;
 use RistekUSDI\Kisara\User as KisaraUser;
 
 $data = [
@@ -528,14 +637,16 @@ $data = [
     ],
 ];
 
-(new KisaraUser($config))->store($data);
+Kisara::connect($config);
+$response = KisaraUser::store($data);
 ```
 
 #### update
 
-Update a user.
+Memperbaharui data pengguna menggunakan id dari pengguna.
 
 ```php
+use RistekUSDI\Kisara\Kisara;
 use RistekUSDI\Kisara\User as KisaraUser;
 
 $data = [
@@ -553,24 +664,28 @@ $data = [
     ],
 ];
 
-(new KisaraUser($config))->update($user_id, $data);
+Kisara::connect($config);
+$response = KisaraUser::update($user_id, $data);
 ```
 
 #### groups
 
-Get groups belong to user with id of user.
+Mendapatkan data daftar kelompok yang terhubung dengan pengguna.
 
 ```php
+use RistekUSDI\Kisara\Kisara;
 use RistekUSDI\Kisara\User as KisaraUser;
 
-(new KisaraUser($config))->groups($user_id);
+Kisara::connect($config);
+$groups = KisaraUser::groups($user_id);
 ```
 
 #### resetCredentials
 
-Reset user credentials.
+Melakukan pengaturan ulang kredensial pengguna.
 
 ```php
+use RistekUSDI\Kisara\Kisara;
 use RistekUSDI\Kisara\User as KisaraUser;
 
 $data = array(
@@ -579,5 +694,61 @@ $data = array(
     'temporary' => true,
 );
 
-(new KisaraUser($config))->resetCredentials($user_id, $data);
+Kisara::connect($config);
+$response = KisaraUser::resetCredentials($user_id, $data);
+```
+
+#### getRoleMappings
+
+Mendapatkan daftar peran yang melekat di suatu pengguna.
+
+```php
+use RistekUSDI\Kisara\Kisara;
+use RistekUSDI\Kisara\User as KisaraUser;
+
+Kisara::connect($config);
+
+$roles = KisaraUser::getRoleMappings($group_id);
+```
+
+#### getAvailableRoles
+
+Mendapatkan daftar peran dari suatu client yang belum terhubung ke pengguna.
+
+```php
+use RistekUSDI\Kisara\Kisara;
+use RistekUSDI\Kisara\User as KisaraUser;
+
+Kisara::connect($config);
+
+$available_roles = KisaraUser::getAvailableRoles($user_id, $client_id);
+```
+
+#### assignRole
+
+Menghubungkan peran dari suatu client yang belum terhubung ke pengguna.
+
+```php
+use RistekUSDI\Kisara\Kisara;
+use RistekUSDI\Kisara\User as KisaraUser;
+
+Kisara::connect($config);
+
+$available_roles = KisaraUser::getAvailableRoles($user_id, $client_id);
+
+$roles = $available_roles;
+$response = KisaraUser::assignRole($user_id, $client_id, $roles);
+```
+
+#### getAssignedRoles
+
+Mendapatkan daftar peran dari suatu client yang sudah terhubung ke pengguna.
+
+```php
+use RistekUSDI\Kisara\Kisara;
+use RistekUSDI\Kisara\User as KisaraUser;
+
+Kisara::connect($config);
+
+$assigned_roles = KisaraUser::getAssignedRoles($user_id, $client_id);
 ```
