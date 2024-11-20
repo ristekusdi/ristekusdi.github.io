@@ -10,9 +10,9 @@ Petunjuk penggunaan pustaka SSO (Single Sign-On) Laravel Universitas Udayana.
 ## Prasyarat
 
 - PHP versi minimal 7.4.
-- Laravel versi 6 sampai 10.
+- Laravel versi 8 sampai 10.
 
-> Catatan saat pengujian tutorial dilakukan pada Laravel versi 8. Bila Anda mengalami kendala silakan buat [isu di ristekusdi/sso-laravel](https://github.com/ristekusdi/sso-laravel/issues).
+> Catatan saat pengujian tutorial dilakukan pada Laravel versi 11. Bila Anda mengalami kendala silakan buat [isu di ristekusdi/sso-laravel](https://github.com/ristekusdi/sso-laravel/issues).
 
 ## Tutorial Web Guard - Tingkat Dasar
 
@@ -25,6 +25,15 @@ composer require ristekusdi/sso-laravel
 ```
 
 Setelah diinstal, silakan ambil nilai environment SSO di website IMISSU2 dan taruh di file `.env`.
+
+```txt
+KEYCLOAK_ADMIN_URL=
+KEYCLOAK_BASE_URL=
+KEYCLOAK_REALM=
+KEYCLOAK_REALM_PUBLIC_KEY=
+KEYCLOAK_CLIENT_ID=
+KEYCLOAK_CLIENT_SECRET=
+```
 
 2. Jalankan perintah di bawah ini.
 
@@ -44,54 +53,68 @@ Perintah di atas akan menghasilkan file-file di bawah ini.
 
 3. Tambahkan guard dan provider `imissu-web` di `config/auth.php`.
 
-```php
-// Tambahkan ini di dalam array dengan key 'guards'
-'imissu-web' => [
-    'driver' => 'imissu-web',
-    'provider' => 'imissu-web',
+::: code-group
+```php [config/auth.php]
+
+'guards' => [
+    // ...
+    'imissu-web' => [ // [!code ++]
+        'driver' => 'imissu-web', // [!code ++]
+        'provider' => 'imissu-web', // [!code ++]
+    ], // [!code ++]
 ],
 
-// Tambahkan ini di dalam array dengan key 'providers'
-'imissu-web' => [
-    'driver' => 'imissu-web',
-    'model' => App\Models\SSO\Web\User::class,
+'providers' => [
+    // ...
+    'imissu-web' => [ // [!code ++]
+        'driver' => 'imissu-web', // [!code ++]
+        'model' => App\Models\SSO\Web\User::class, // [!code ++]
+    ], // [!code ++]
 ],
 ```
+:::
 
 4. Daftarkan route `sso-web` dengan perintah di bawah ini.
 
-::: code-group
-```bash [Laravel 8+]
-php artisan vendor:publish --tag=sso-laravel-web-route-v2
+```bash
+php artisan vendor:publish --tag=sso-laravel-web-route
 ```
-
-```bash [Laravel 6 - 7]
-php artisan vendor:publish --tag=sso-laravel-web-route-v1
-```
-:::
 
 Perintah di atas akan menghasilkan file `sso-web.php` di folder `routes`. Isi dari file berupa route dengan method `login`, `callback`, `logout`.
 
 5. Tambahkan route `sso-web.php` ke dalam file `routes/web.php`.
 
-```php
-require __DIR__.'/sso-web.php';
+::: code-group
+```php [routes/web.php]
+<?php
+// ...
+
+require __DIR__.'/sso-web.php'; // [!code ++]
 ```
+:::
 
 6. Ubah nilai `redirect_url` menjadi `'/sso-web-basic'` di `config/sso.php`.
 
-```diff
-- 'redirect_url' => '/',
-+ 'redirect_url' => '/sso-web-demo',
+::: code-group
+```php [config/sso.php]
+'redirect_url' => '/', // [!code --]
+'redirect_url' => '/sso-web-demo', // [!code ++]
 ```
+:::
 
 Hal ini bertujuan ketika login dengan SSO maka langsung diarahkan ke halaman `/sso-web-demo`.
 
 7. Tambahkan route `sso-web-demo.php` ke dalam file `routes/web.php` untuk melihat demo SSO web.
 
-```php
-require __DIR__.'/sso-web-demo.php';
+::: code-group
+```php [routes/web.php]
+<?php
+// ...
+
+require __DIR__.'/sso-web.php';
+require __DIR__.'/sso-web-demo.php'; // [!code ++]
 ```
+:::
 
 8. Buka halaman `/sso-web-demo` dengan URL `http://localhost:<port>/sso-web-demo` atau `http://yourapp.test/sso-web-demo` dengan bantuan [Laragon](https://laragon.org/docs/pretty-urls.html).
 
@@ -131,7 +154,8 @@ Pada gambar di atas, kita belum mendapatkan nilai dari **Current role** dan **Pe
 
 3. Kita akan menerapkan [konsep Accessor dan Mutators Laravel](https://laravel.com/docs/8.x/eloquent-mutators#accessors-and-mutators) untuk menangani kondisi ini. Buka file `app/Models/SSO/Web/User.php` dan ikuti isian seperti kode di bawah.
 
-```php
+::: code-group
+```php [app/Models/SSO/Web/User.php]
 <?php
 
 namespace App\Models\SSO\Web;
@@ -202,6 +226,7 @@ class User extends Model
     }
 }
 ```
+:::
 
 4. Refresh halaman "Advance" maka nilai dari field **Current role** sudah berubah seperti gambar di bawah.
 
@@ -210,26 +235,18 @@ class User extends Model
 5. Kita akan mengubah session `role`. Tambahkan kode berikut di dalam group middleware `imissu-web` di file `routes/sso-web-demo.php`.
 
 ::: code-group
-
-```php [Laravel 8+]
+```php [routes/sso-web-demo.php]
 Route::middleware(['imissu-web'])->group(function () {
     //...
-    Route::post('/sso-web-demo/change-role', [App\Http\Controllers\SSO\Web\DemoController::class, 'changeRole']);
+    Route::post('/sso-web-demo/change-role', [App\Http\Controllers\SSO\Web\DemoController::class, 'changeRole']); // [!code ++]
 });
 ```
-
-```php [Laravel 6 - 7]
-Route::middleware(['imissu-web'])->group(function () {
-    //...
-    Route::post('/sso-web-demo/change-role', 'App\Http\Controllers\SSO\Web\DemoController@changeRole');
-});
-```
-
 :::
 
 6. Tambahkan kode untuk mengubah peran di `resources/views/sso-web/advance.blade.php` sebelum tag `</body>`.
 
-```html
+::: code-group
+```html [resources/views/sso-web/advance.blade.php]
 <input type="hidden" name="url_change_role" value="{{ url('/sso-web-demo/change-role') }}">
 
 <script>
@@ -272,38 +289,29 @@ Route::middleware(['imissu-web'])->group(function () {
     }
 </script>
 ```
+:::
 
 7. Tambahkan method `changeRole()` di `app/Http/Controllers/Web/DemoController.php`.
 
-```php{4}
+::: code-group
+```php [app/Http/Controllers/Web/DemoController.php]
+<?php
 // ..
-public function changeRole(Request $request)
-{   
-    auth('imissu-web')->user()->role = json_decode($request->role);
-    return response()->json([
-        'message' => 'Berhasil mengubah peran aktif',
-    ], 204);
-}
+public function changeRole(Request $request) // [!code ++]
+{   // [!code ++]
+    auth('imissu-web')->user()->role = json_decode($request->role); // [!code ++]
+    return response()->json([ // [!code ++]
+        'message' => 'Berhasil mengubah peran aktif', // [!code ++]
+    ], 204); // [!code ++]
+} // [!code ++]
 ```
+:::
 
 8. Di halaman "Advance" ubah peran Admin menjadi Super Admin dan hasilnya seperti gambar di bawah.
 
 ![Image of SSO web demo advance fix part 2](/img/sso-web-demo-advance-2.png)
 
 Kita telah menambahkan atribut tambahan dari session aplikasi. Bagaimana cara menghapusnya saat pengguna keluar aplikasi? Jika Anda sudah mengikuti langkah 5 sampai 8 mungkin Anda sudah menemukan caranya. Jika belum, kita lanjutkan tutorial ini.
-
-9. Sisipkan baris perintah `session()->flush()` untuk menghapus semua session di method `logout()` di `app/Http/Controllers/SSO/Web/AuthController.php`.
-
-```php{3}
-public function logout()
-{
-    session()->flush();
-    $url = IMISSUWeb::getLogoutUrl();
-    return redirect($url);
-}
-```
-
-Klik tautan "Log out" dan session aplikasi terhapus saat pengguna keluar dari aplikasi.
 
 Tutorial selesai. :tada:
 
@@ -333,53 +341,64 @@ Perintah di atas akan menghasilkan file-file di bawah ini.
 
 2. Daftarkan route `web-session.php` ke dalam file `routes/web.php`.
 
-```php
-require __DIR__.'/web-session.php';
+::: code-group
+```php [routes/web.php]
+// ...
+require __DIR__.'/web-session.php'; // [!code ++]
 ```
+:::
 
 3. Hapus baris kode di file `routes/sso-web-demo.php` dan tambahkan baris kode di file `routes/web-session.php`.
 
 ::: code-group
-
-```diff [Laravel 8+]
-- Route::post('/sso-web-demo/change-role', [App\Http\Controllers\SSO\Web\DemoController::class, 'changeRole']);
-+ Route::post('/web-session/change-role', [App\Http\Controllers\SSO\Web\SessionController::class, 'changeRole']);
+```php [routes/sso-web-demo.php]
+Route::post('/sso-web-demo/change-role', [App\Http\Controllers\SSO\Web\DemoController::class, 'changeRole']); // [!code --]
 ```
-
-```diff [Laravel 6 - 7]
-- Route::post('/sso-web-demo/change-role', 'App\Http\Controllers\SSO\Web\DemoController@changeRole']);
-+ Route::post('/web-session/change-role', 'App\Http\Controllers\SSO\Web\SessionController@changeRole');
+```php [routes/web-session.php]
+Route::post('/web-session/change-role', [App\Http\Controllers\SSO\Web\SessionController::class, 'changeRole']); // [!code ++]
 ```
 :::
 
 4. Pindahkan method `changeRole()` dari file `app/Http/Controllers/SSO/Web/DemoController.php` ke file `app/Http/Controllers/SSO/Web/SessionController.php`.
 
-6. Daftarkan provider `WebSession` dan class `WebSession` di `config/app.php`.
+6. Daftarkan provider `WebSession` dan facades `WebSession` di `config/app.php` pada Laravel versi 8 - 10 atau `bootstrap/providers` pada Laravel versi 11.
 
-```php{5,12}
+::: code-group
+```php [config/app.php in Laravel 8 - 10]
 'providers' => [
     //...
 
     // WebSession
-    App\Providers\WebSessionProvider::class,
+    App\Providers\WebSessionProvider::class, // [!code ++]
 ],
 
 'aliases' => [
     //...
 
     // WebSession
-    'WebSession' => App\Facades\WebSession::class,
+    'WebSession' => App\Facades\WebSession::class, // [!code ++]
 ]
 ```
 
+```php [bootstrap/providers.php in Laravel 11]
+<?php
+
+return [
+    // ...
+    App\Providers\WebSessionProvider::class, // [!code ++]
+];
+```
+:::
+
 7. Refactor kode program di `app/Models/SSO/Web/User.php`.
 
-```php{5,14,19,24,29,34}
+::: code-group [app/Models/SSO/Web/User.php]
+```php
 <?php
 
 namespace App\Models\SSO\Web;
 
-use App\Facades\WebSession;
+use App\Facades\WebSession; // [!code ++]
 use RistekUSDI\SSO\Laravel\Models\Web\User as Model;
 
 class User extends Model
@@ -388,21 +407,22 @@ class User extends Model
 
     public function getRolesAttribute()
     {
-        return $this->attributes['roles'] = WebSession::getRoles($this->getAttribute('client_roles'));
+        return $this->attributes['roles'] = WebSession::getRoles($this->getAttribute('client_roles')); // [!code ++]
     }
 
     public function setRoleAttribute($value)
     {
-        WebSession::setRole($value);
+        WebSession::setRole($value); // [!code ++]
         $this->attributes['role'] = session()->get('role');
     }
 
     public function getRoleAttribute()
     {
-        return $this->attributes['role'] = WebSession::getRole($this->getAttribute('roles')['0']);
+        return $this->attributes['role'] = WebSession::getRole($this->getAttribute('roles')['0']); // [!code ++]
     }
 }
 ```
+:::
 
 8. Tambahkan kode program berikut di `app/Services/WebSession.php`.
 
@@ -473,10 +493,12 @@ class WebSession
 
 7. Ganti value dari `url_change_role` di file `resources/views/sso-web/advance.blade.php`.
 
-```diff
-- <input type="hidden" name="url_change_role" value="{{ url('/sso-web-demo/change-role') }}">
-+ <input type="hidden" name="url_change_role" value="{{ url('/web-session/change-role') }}">
+::: code-group
+```html [resources/views/sso-web/advance.blade.php]
+<input type="hidden" name="url_change_role" value="{{ url('/sso-web-demo/change-role') }}"> // [!code --]
++ <input type="hidden" name="url_change_role" value="{{ url('/web-session/change-role') }}"> // [!code ++]
 ```
+:::
 
 8. Proses refactoring telah selesai. Silakan cek ulang apakah proses mengubah session `role` di halaman "Advance" masih berjalan atau tidak. Bila tidak berjalan silakan cek kembali langkah-langkah di atas.
 
