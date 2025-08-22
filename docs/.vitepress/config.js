@@ -5,11 +5,11 @@ export default {
         siteTitle: 'Ristek USDI',
         nav: [
             { text: 'Panduan', link: '/guide/introduction' },
-            { text: 'Perkakas', link: '/tools/introduction' },
+            { text: 'Pustaka', link: '/libraries/introduction' },
         ],
         sidebar: {
             '/guide/': { base: '/guide/', items: sidebarGuide() },
-            '/tools/': { base: '/tools/', items: sidebarTools() },
+            '/libraries/': { base: '/libraries/', items: sidebarLibraries() },
         },
         search: {
             provider: 'local'
@@ -35,10 +35,10 @@ function sidebarGuide() {
     ]
 }
 
-function sidebarTools() {
+function sidebarLibraries() {
     return [
         {
-            text: 'Perkakas',
+            text: 'Pustaka',
             items: [
                 { text: 'Pengantar', link: 'introduction' },
                 { text: 'SSO PHP', link: 'sso-php' },
