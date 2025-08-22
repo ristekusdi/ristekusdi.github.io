@@ -9,9 +9,9 @@ Petunjuk penggunaan pustaka SSO (Single Sign-On) PHP Universitas Udayana.
 
 ## Prasyarat
 
-- PHP versi minimal 7.4
+- PHP versi minimal 8.1
 
-> Pengujian tutorial dilakukan pada CodeIgniter versi 3.x. Bila Anda mengalami kendala silakan buat [isu di ristekusdi/sso-php](https://github.com/ristekusdi/sso-php/issues).
+> Pengujian tutorial dilakukan pada CodeIgniter versi 3.x. Bila Anda mengalami kendala silakan hubungi programmer USDI yang bertugas mengembangkan pustaka ini.
 
 ## Instalasi
 

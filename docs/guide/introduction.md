@@ -1,10 +1,10 @@
 # Pengantar
 
-Ristek USDI (Riset teknologi Unit Sumber Daya Informasi) adalah sebuah organisasi yang dibuat oleh [Kresna Satya](https://github.com/kresnasatya) (programmer USDI) pada tahun 2021. Ide untuk membuat organisasi ini muncul dari [GitHub Ristek CS UI](https://github.com/RistekCSUI) yang ditemukan oleh Kresna beberapa tahun sebelum Ristek USDI dibuat. Ristek USDI dibuat dengan tujuan sebagai sarana untuk programmer-programmer di USDI untuk membuat dan mempublikasikan perkakas-perkakas yang bersifat sumber terbuka (open source tools) di platform GitHub.
+Ristek USDI (Riset teknologi Unit Sumber Daya Informasi) adalah sebuah organisasi yang dibuat oleh [Kresna Satya](https://github.com/kresnasatya) (programmer USDI) pada tahun 2021. Ide untuk membuat organisasi ini muncul dari [GitHub Ristek CS UI](https://github.com/RistekCSUI) yang ditemukan oleh Kresna beberapa tahun sebelum Ristek USDI dibuat. Ristek USDI dibuat dengan tujuan sebagai sarana untuk programmer-programmer di USDI untuk membuat dan mempublikasikan pustaka yang bersifat sumber terbuka (open source software) di platform GitHub.
 
 ## Alat dan Teknologi
 
-Berdasarkan pengamatan saya, USDI mengembangkan aplikasi-aplikasi internal di Universitas Udayana dalam bentuk web dan mobile. USDI menggunakan HTML, CSS, JavaScript, dan PHP sebagai bahasa pemrograman utama untuk mengembangkan aplikasi berbasis web. Lalu, untuk mengembangkan aplikasi berbasis mobile, USDI mengandalkan Flutter karena bisa digunakan untuk Android dan iOS. Secara singkat, alat dan teknologi yang digunakan USDI untuk mengembangkan aplikasi berbasis web dan mobile sebagai berikut.
+Berdasarkan pengamatan pribadi, USDI mengembangkan aplikasi-aplikasi internal di Universitas Udayana dalam bentuk web dan mobile. USDI menggunakan HTML, CSS, JavaScript, dan PHP sebagai bahasa pemrograman utama untuk mengembangkan aplikasi berbasis web. Lalu, untuk mengembangkan aplikasi berbasis mobile, USDI mengandalkan Flutter karena bisa digunakan untuk Android dan iOS. Secara singkat, alat dan teknologi yang digunakan USDI untuk mengembangkan aplikasi berbasis web dan mobile sebagai berikut.
 
 ### Alat
 
@@ -17,4 +17,4 @@ Berdasarkan pengamatan saya, USDI mengembangkan aplikasi-aplikasi internal di Un
 - Mobile programming framework: Flutter
 - Container tools: Docker
 - Distributed version control system: Git
-- Git-repository platforms: GitLab (self-hosted), GitHub (open source tools)
+- Git-repository platforms: GitLab (self-hosted), GitHub for open source software

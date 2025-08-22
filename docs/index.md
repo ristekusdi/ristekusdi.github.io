@@ -10,8 +10,8 @@ hero:
           text: Panduan
           link: /guide/introduction
         - theme: alt
-          text: Perkakas
-          link: /tools/introduction
+          text: Pustaka
+          link: /libraries/introduction
         - theme: alt
           text: GitHub 
           link: https://github.com/ristekusdi

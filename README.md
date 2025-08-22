@@ -6,7 +6,7 @@ Website dokumentasi Riset Teknologi Unit Sumber Daya Informasi menggunakan [Vite
 
 ## Cara Menjalankan
 
-> Syarat: Gunakan versi NodeJS minimal 16.14.2. Silakan gunakan [Volta](https://volta.sh/) untuk manajemen NodeJS yang lebih baik.
+> Syarat: Gunakan NodeJS dengan versi minimal 22. Silakan gunakan [Volta](https://volta.sh/) untuk manajemen NodeJS yang lebih baik.
 
 1. Git clone repositori ini `git clone git@github.com:ristekusdi/ristekusdi.github.io` via terminal.
 2. Arahkan terminal ke direktori `ristekusdi.github.io` dengan perintah `cd ristekusdi.github.io`.
